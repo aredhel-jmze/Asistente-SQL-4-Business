@@ -1,0 +1,103 @@
+\documentclass[10pt]{article}
+\usepackage[margin=1.2cm,top=0.9cm,bottom=0.9cm,columnsep=0.7cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{multicol}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{parskip}
+
+\definecolor{ucblue}{RGB}{0,51,102}
+\definecolor{ucgray}{RGB}{90,90,90}
+
+\hypersetup{colorlinks=true, urlcolor=ucblue, linkcolor=ucblue}
+
+\titleformat{\section}{\normalfont\bfseries\color{ucblue}\large}{}{0em}{}[{\color{ucblue}\titlerule[0.8pt]}]
+\titlespacing*{\section}{0pt}{4pt}{3pt}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries\color{ucblue} SQL4Business}\\[6pt]
+{\large Asistente de consultas: SQL y reportes ejecutivos fieles a los datos}\\[3pt]
+{\small\color{ucgray} Generative Artificial Intelligence (580694), Universidad de Concepci\'on \quad$\vert$\quad Deliverable 1}\\[2pt]
+{\small\color{ucgray} Equipo: Aredhel Jim\'enez, Bryan Riquelme, Guido Salazar, Vicente So\~nez}\\[2pt]
+{\small\color{ucgray} Repositorio: \href{https://github.com/aredhel-jmze/Asistente-SQL-4-Business}{github.com/aredhel-jmze/Asistente-SQL-4-Business}}
+\end{center}
+
+\vspace{2pt}
+
+\begin{multicols}{2}
+
+\section{Definici\'on de la tarea}
+Se propone un asistente que, dada una pregunta de negocio, decide y ejecuta las consultas SQL necesarias, y redacta un resumen fiel a los resultados obtenidos, ya sea para una consulta puntual o para una consulta combinada, que requiere identificar, relacionar y ejecutar varias consultas para razonar cu\'al es la respuesta correcta. Una salida se considerar\'ia correcta cuando las consultas ejecutadas son las necesarias y suficientes para responder la pregunta, y cuando cada cifra del resumen final es fiel a esos resultados.
+
+\section{Diferenciaci\'on del proyecto}
+Text-to-SQL es una tarea ampliamente estudiada, pero la literatura existente se detiene casi siempre en la exactitud de una \'unica consulta generada. Este proyecto extiende esa base en dos direcciones poco exploradas en modelos abiertos peque\~nos. La primera es la capacidad de planificar qu\'e consultas son necesarias para responder preguntas que combinan varios datos, como el crecimiento de ventas del \'ultimo semestre, y la segunda es la fidelidad num\'erica del reporte generado a partir de esos resultados.
+
+\section{Diagn\'ostico de la falla}
+Un modelo abierto de hasta 8B prompteado directamente falla en ambas direcciones. Sobre el benchmark BIRD (95 bases de datos reales con valores ruidosos)~[6], estos modelos no superan el 51\% de exactitud de ejecuci\'on en una sola consulta, lejos del 90\% o m\'as que alcanzan sistemas con modelos mucho m\'as grandes~[1], y la ca\'ida es mayor en consultas con agregaci\'on y joins (cuando se deben combinar datos de m\'ultiples filas o de distintas tablas), donde un modelo de 7B pasa de 69.2\% en consultas simples a 54.5\% en moderadas~[2]. Cuando la pregunta exige planificar y encadenar varias consultas, como en una consulta combinada, la falla se agrava, y en evaluaciones de function calling multi turno, modelos peque\~nos sin especializar caen a precisiones de un solo d\'igito, aunque el mismo modelo resuelva bien una llamada aislada~[3]. Esto se confirma con evidencia propia sobre 15 preguntas de negocio construidas por el equipo (10 puntuales, 5 combinadas), resumida en la siguiente tabla.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Modelo} & \textbf{Puntual} & \textbf{Combinada} & \textbf{Global} \\
+\midrule
+Qwen-7B & 50\% & 0\% & 33.3\% \\
+Qwen-3B & 70\% & 0\% & 46.7\% \\
+Llama-8B & 70\% & 0\% & 46.7\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Los tres modelos, sin excepci\'on, obtuvieron 0\% en las preguntas combinadas.
+
+En la etapa de redacci\'on del resumen, incluso con las consultas correctas, el modelo puede introducir cifras que no corresponden a los resultados reales obtenidos. Este problema no es incidental ni parejo entre tama\~nos: un estudio reciente muestra que la inconsistencia factual en generaci\'on de texto a partir de datos estructurados escala de forma exponencial, no lineal, a medida que el modelo se achica~[4], lo que sit\'ua a un modelo de 8B o menos en una zona de riesgo particularmente alta.
+
+\section{Modelos candidatos}
+Se seleccionan tres modelos que cubren roles distintos, no solo el mejor puntaje, mayor exactitud publicada, menor tama\~no para el bonus, y mayor soporte de comunidad para reducir el riesgo de ejecuci\'on.
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.3cm}c>{\raggedright\arraybackslash}p{1.15cm}>{\raggedright\arraybackslash}p{3.55cm}@{}}
+\toprule
+\textbf{Modelo} & \textbf{B} & \textbf{EX BIRD} & \textbf{Justificaci\'on} \\
+\midrule
+Qwen2.5-Coder-7B-Instruct & 7 & 50.9\%~[1] & Mejor exactitud publicada entre modelos $\leq$8B; contexto de 128K~[5]; notebooks QLoRA disponibles \\
+\addlinespace
+Qwen2.5-Coder-3B-Instruct & 3 & no reportado & Misma familia y datos que el principal; aisla el efecto del tama\~no (bonus) e itera m\'as r\'apido \\
+\addlinespace
+Llama-3.1-8B-Instruct & 8 & 42.0\%~[1] & Menor exactitud, pero mayor comunidad y documentaci\'on de fine-tuning: menos riesgo de ejecuci\'on \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Factibilidad de ejecuci\'on}
+Los tres candidatos, cuantizados en 4 bits, ocupan entre 2 y 5GB de VRAM, dentro del l\'imite de una GPU T4 de 16GB de Google Colab gratuito. El fine-tuning con QLoRA sobre Qwen2.5-Coder-7B-Instruct es viable en una sola sesi\'on, con notebooks de referencia p\'ublicos para text-to-SQL sobre BIRD. Para el fine-tuning se usar\'a un subconjunto de 10 a 15 bases de datos de BIRD del dominio de negocio (ventas, inventario, finanzas), evitando cargar el benchmark completo (33.4GB); el diagn\'ostico de falla de este entregable, en cambio, se evalu\'o sobre la base de datos sint\'etica propia del equipo. Dada la velocidad de iteraci\'on y que la evidencia propia no muestra desventaja frente a los otros candidatos, el equipo se inclina por Qwen2.5-Coder-3B-Instruct para las siguientes etapas del semestre.
+
+\section{Repositorio}
+El repositorio documenta la tarea, el equipo, y el estado del trabajo, incluyendo el notebook de evaluaci\'on baseline y los resultados de los tres candidatos.
+
+\vfill
+\begin{footnotesize}
+\textbf{Referencias}
+\begin{enumerate}[leftmargin=1.1em, label={[\arabic*]}, itemsep=0pt, topsep=1pt, parsep=0pt]
+\item ``CogniSQL-R1-Zero: Lightweight Reinforced Reasoning for Efficient SQL Generation.'' arXiv:2507.06013, 2025.
+\item ``JudgeSQL: Reasoning over SQL Candidates with Weighted Consensus Tournament.'' arXiv:2510.15560, 2025.
+\item ``TinyLLM: Evaluation and Optimization of Small Language Models for Agentic Tasks on Edge Devices.'' arXiv:2511.22138, 2025.
+\item Mahapatra, Roy, Garain. ``Factual Inconsistency in Data-to-Text Generation Scales Exponentially with LLM Size.'' arXiv:2502.12372, 2025.
+\item Hui, Yang, et al. ``Qwen2.5-Coder Technical Report.'' arXiv:2409.12186, 2024.
+\item Li et al. ``Can LLM Already Serve as A Database Interface? A BIg Bench for Large-Scale Database Grounded Text-to-SQLs.'' NeurIPS 2023 (arXiv:2305.03111).
+\end{enumerate}
+\end{footnotesize}
+
+\end{multicols}
+\end{document}
