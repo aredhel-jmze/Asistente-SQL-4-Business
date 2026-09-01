@@ -92,6 +92,8 @@ Evidencia propia, sobre el set de 15 preguntas de negocio del equipo (ver result
 | Qwen2.5-Coder-3B-Instruct | 70% |	0% | 46.7% |
 | Llama-3.1-8B-Instruct	| 70% |	0% | 46.7% |
 
+Dada la velocidad de iteración y que la evidencia propia no muestra desventajas mayores frente a los otros candidatos, el equipo se inclina por Qwen2.5-Coder-3B-Instruct para las siguientes etapas del semestre.
+
 ## Referencias
 
 1. CogniSQL-R1-Zero: Lightweight Reinforced Reasoning for Efficient SQL Generation. arXiv:2507.06013, 2025.
