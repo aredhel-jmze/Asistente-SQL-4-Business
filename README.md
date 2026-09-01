@@ -53,6 +53,13 @@ Detalle completo en [`docs/deliverable1.pdf`](docs/deliverable1.pdf).
     ├── baseline_comparison.csv  Exactitud por modelo y tipo de pregunta
     └── baseline_results.json    Detalle por pregunta, incluye el SQL generado por cada modelo
 ```
+## Sobre los datos
+
+`business.db` es una base de datos sintética (ventas e inventario ficticios,
+generados con semilla fija para ser reproducibles), la cual no proviene de ninguna
+fuente externa. Se optó por datos sintéticos en esta etapa temprana de
+investigación porque permiten controlar la dificultad de las preguntas y
+obtener evidencia propia verificable de forma rápida.
 
 ## Cómo reproducir
 
