@@ -72,7 +72,7 @@ Llama-3.1-8B-Instruct requiere cuenta en Hugging Face, aceptar su licencia en hu
 - [x] Set de evaluación de 15 preguntas con resultado de referencia
       verificado (10 puntuales, 5 combinadas)
 - [x] Notebook de evaluación baseline corrido en Colab sobre los tres candidatos
-- [ ] Evidencia propia de falla (ver `results/`.): los tres modelos obtuvieron 0% de exactitud en las preguntas combinadas, frente a 50% y 70% en las puntuales
+- [x] Evidencia propia de falla (ver `results/`.): los tres modelos obtuvieron 0% de exactitud en las preguntas combinadas, frente a 50% y 70% en las puntuales
 - [ ] Fine-tuning QLoRA sobre el modelo principal (próximo entregable)
 - [ ] Etapa de redacción de reporte ejecutivo con verificación de fidelidad
       numérica (próximo entregable)
