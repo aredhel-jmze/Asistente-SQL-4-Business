@@ -9,10 +9,10 @@ Deliverable 1.
 
 ## Equipo
 
-- [Nombre integrante 1]
-- [Nombre integrante 2]
-- [Nombre integrante 3]
-- [Nombre integrante 4]
+- Aredhel Jiménez
+- Bryan Riquelme
+- Guido Salazar
+- Vicente Soñez
 
 ## Definición de la tarea
 
