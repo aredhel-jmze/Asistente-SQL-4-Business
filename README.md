@@ -2,7 +2,7 @@
 
 ### Asistente de Consultas de Negocio: SQL y Reportes Ejecutivos Fieles a los Datos
 
-Generative Artificial Intelligence (580694), Segundo semestre 2026, Universidad de Concepción.
+Generative Artificial Intelligence (580694), Universidad de Concepción.
 
 ## Deliverable 1.
 
@@ -99,4 +99,4 @@ Evidencia propia, sobre el set de 15 preguntas de negocio del equipo (ver result
 3. TinyLLM: Evaluation and Optimization of Small Language Models for Agentic Tasks on Edge Devices. arXiv:2511.22138, 2025.
 4. Mahapatra, Roy, Garain. Factual Inconsistency in Data-to-Text Generation Scales Exponentially with LLM Size. arXiv:2502.12372, 2025.
 5. Hui, Yang, et al. Qwen2.5-Coder Technical Report. arXiv:2409.12186, 2024.
-6. Li et al. Can LLM Already Serve as A Database Interface? A Big Bench for Large-Scale Database Grounded Text-to-SQLs. NeurIPS 2023.
+6. Li et al. Can LLM Already Serve as A Database Interface? A Big Bench for Large-Scale Database Grounded Text-to-SQLs. NeurIPS 2023 (arXiv:2305.03111).
