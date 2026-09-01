@@ -1,0 +1,310 @@
+{
+  "schema": "CREATE TABLE products (product_id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);\nCREATE TABLE sales (sale_id INTEGER PRIMARY KEY, product_id INTEGER, sale_date TEXT, quantity INTEGER, amount INTEGER);\nCREATE TABLE inventory (product_id INTEGER PRIMARY KEY, stock INTEGER, reorder_point INTEGER);",
+  "questions": [
+    {
+      "id": "q01",
+      "type": "puntual",
+      "question": "Cuantas unidades del Notebook 14 pulgadas se vendieron en junio de 2026?",
+      "gold_sql": [
+        "SELECT SUM(s.quantity) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.name = 'Notebook 14 pulgadas' AND s.sale_date BETWEEN '2026-06-01' AND '2026-06-30'"
+      ],
+      "gold_result": [
+        [
+          [
+            34
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q02",
+      "type": "puntual",
+      "question": "Cual es el ingreso total generado por la categoria Electronica en todo el semestre?",
+      "gold_sql": [
+        "SELECT SUM(s.amount) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Electronica'"
+      ],
+      "gold_result": [
+        [
+          [
+            97658120
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q03",
+      "type": "puntual",
+      "question": "Que producto tuvo el mayor ingreso total acumulado en el semestre?",
+      "gold_sql": [
+        "SELECT p.name FROM sales s JOIN products p ON s.product_id = p.product_id GROUP BY p.product_id ORDER BY SUM(s.amount) DESC LIMIT 1"
+      ],
+      "gold_result": [
+        [
+          [
+            "Notebook 14 pulgadas"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q04",
+      "type": "puntual",
+      "question": "Cuantas unidades en total se vendieron en la categoria Alimentos durante agosto de 2026?",
+      "gold_sql": [
+        "SELECT SUM(s.quantity) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Alimentos' AND s.sale_date BETWEEN '2026-08-01' AND '2026-08-31'"
+      ],
+      "gold_result": [
+        [
+          [
+            63
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q05",
+      "type": "puntual",
+      "question": "Cual es el precio del producto Set de Ollas?",
+      "gold_sql": [
+        "SELECT price FROM products WHERE name = 'Set de Ollas'"
+      ],
+      "gold_result": [
+        [
+          [
+            59990
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q06",
+      "type": "puntual",
+      "question": "Que productos tienen stock por debajo de su punto de reorden?",
+      "gold_sql": [
+        "SELECT p.name FROM inventory i JOIN products p ON i.product_id = p.product_id WHERE i.stock < i.reorder_point"
+      ],
+      "gold_result": [
+        [
+          [
+            "Lampara de Escritorio"
+          ],
+          [
+            "Polera Basica"
+          ],
+          [
+            "Zapatillas Urbanas"
+          ],
+          [
+            "Cafe Molido 500g"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q07",
+      "type": "puntual",
+      "question": "Cuantas ventas distintas se registraron para la Polera Basica en todo el semestre?",
+      "gold_sql": [
+        "SELECT COUNT(*) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.name = 'Polera Basica'"
+      ],
+      "gold_result": [
+        [
+          [
+            56
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q08",
+      "type": "puntual",
+      "question": "Cual es el ingreso promedio por venta en la categoria Hogar?",
+      "gold_sql": [
+        "SELECT AVG(s.amount) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Hogar'"
+      ],
+      "gold_result": [
+        [
+          [
+            108273.54651162791
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q09",
+      "type": "combinada",
+      "question": "Cual fue el crecimiento porcentual de ventas totales entre el primer trimestre (marzo a mayo) y el segundo trimestre (junio a agosto) del semestre?",
+      "gold_sql": [
+        "SELECT SUM(amount) FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-05-31'",
+        "SELECT SUM(amount) FROM sales WHERE sale_date BETWEEN '2026-06-01' AND '2026-08-31'"
+      ],
+      "combine": "growth_pct",
+      "gold_result": [
+        [
+          [
+            48748530
+          ]
+        ],
+        [
+          [
+            78058920
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q10",
+      "type": "combinada",
+      "question": "Cual fue el producto top en ingresos de cada trimestre del semestre, y cambio el lider entre el primer y el segundo trimestre?",
+      "gold_sql": [
+        "SELECT p.name FROM sales s JOIN products p ON s.product_id = p.product_id WHERE s.sale_date BETWEEN '2026-03-01' AND '2026-05-31' GROUP BY p.product_id ORDER BY SUM(s.amount) DESC LIMIT 1",
+        "SELECT p.name FROM sales s JOIN products p ON s.product_id = p.product_id WHERE s.sale_date BETWEEN '2026-06-01' AND '2026-08-31' GROUP BY p.product_id ORDER BY SUM(s.amount) DESC LIMIT 1"
+      ],
+      "combine": "compare_equal",
+      "gold_result": [
+        [
+          [
+            "Notebook 14 pulgadas"
+          ]
+        ],
+        [
+          [
+            "Notebook 14 pulgadas"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q11",
+      "type": "combinada",
+      "question": "Cuantas unidades totales se vendieron en el semestre y cuantas de esas corresponden a la categoria Electronica?",
+      "gold_sql": [
+        "SELECT SUM(quantity) FROM sales",
+        "SELECT SUM(s.quantity) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Electronica'"
+      ],
+      "combine": "share_pct",
+      "gold_result": [
+        [
+          [
+            1655
+          ]
+        ],
+        [
+          [
+            488
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q12",
+      "type": "combinada",
+      "question": "El ingreso de agosto de 2026 fue mayor o menor que el de marzo de 2026, y en que porcentaje?",
+      "gold_sql": [
+        "SELECT SUM(amount) FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-03-31'",
+        "SELECT SUM(amount) FROM sales WHERE sale_date BETWEEN '2026-08-01' AND '2026-08-31'"
+      ],
+      "combine": "growth_pct",
+      "gold_result": [
+        [
+          [
+            18508100
+          ]
+        ],
+        [
+          [
+            29442750
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q13",
+      "type": "puntual",
+      "question": "Cuantos productos distintos tiene la categoria Ropa?",
+      "gold_sql": [
+        "SELECT COUNT(*) FROM products WHERE category = 'Ropa'"
+      ],
+      "gold_result": [
+        [
+          [
+            2
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q14",
+      "type": "combinada",
+      "question": "De los productos con stock bajo el punto de reorden, cual es el que mas ingreso genero en el semestre?",
+      "gold_sql": [
+        "SELECT p.product_id FROM inventory i JOIN products p ON i.product_id = p.product_id WHERE i.stock < i.reorder_point",
+        "SELECT p.name FROM sales s JOIN products p ON s.product_id = p.product_id GROUP BY p.product_id ORDER BY SUM(s.amount) DESC"
+      ],
+      "combine": "filter_then_rank",
+      "gold_result": [
+        [
+          [
+            6
+          ],
+          [
+            7
+          ],
+          [
+            8
+          ],
+          [
+            9
+          ]
+        ],
+        [
+          [
+            "Notebook 14 pulgadas"
+          ],
+          [
+            "Set de Ollas"
+          ],
+          [
+            "Zapatillas Urbanas"
+          ],
+          [
+            "Audifonos Inalambricos"
+          ],
+          [
+            "Juego de Sabanas"
+          ],
+          [
+            "Lampara de Escritorio"
+          ],
+          [
+            "Polera Basica"
+          ],
+          [
+            "Mouse Optico"
+          ],
+          [
+            "Aceite de Oliva 500ml"
+          ],
+          [
+            "Cafe Molido 500g"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "q15",
+      "type": "puntual",
+      "question": "Cual es el ingreso total de la tienda en todo el semestre?",
+      "gold_sql": [
+        "SELECT SUM(amount) FROM sales"
+      ],
+      "gold_result": [
+        [
+          [
+            126807450
+          ]
+        ]
+      ]
+    }
+  ]
+}
