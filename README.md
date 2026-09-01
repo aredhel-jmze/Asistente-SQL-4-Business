@@ -32,17 +32,18 @@ Detalle completo en [`docs/deliverable1.pdf`](docs/deliverable1.pdf).
 ```
 .
 ├── docs/
-│   ├── deliverable1.pdf      Documento del Entregable 1 (una página)
-│   └── deliverable1.tex      Fuente LaTeX
+│   ├── deliverable1.pdf         Documento del Entregable 1 (una página)
+│   └── deliverable1.tex         Fuente LaTeX
 ├── data/
-│   ├── build_db.py           Genera business.db (ventas e inventario sintéticos)
-│   ├── build_questions.py    Genera questions.json (15 preguntas con resultado de referencia)
-│   ├── business.db           Base de datos SQLite generada
-│   └── questions.json        Set de evaluación con ground truth
+│   ├── build_db.py              Genera business.db (ventas e inventario sintéticos)
+│   ├── build_questions.py       Genera questions.json (15 preguntas con resultado de referencia)
+│   ├── business.db              Base de datos SQLite generada
+│   └── questions.json           Set de evaluación con ground truth
 ├── notebooks/
-│   └── baseline_eval.ipynb   Evaluación baseline en Colab (evidencia de falla)
+│   └── baseline_eval.ipynb      Evaluación baseline en Colab (evidencia de falla)
 └── results/
-    └── baseline_results.json Resultados del baseline (se genera al correr el notebook)
+    ├── baseline_comparison.csv  Exactitud por modelo y tipo de pregunta
+    └── baseline_results.json    Detalle por pregunta, incluye el SQL generado por cada modelo
 ```
 
 ## Cómo reproducir
@@ -57,8 +58,9 @@ Detalle completo en [`docs/deliverable1.pdf`](docs/deliverable1.pdf).
 2. Abrir `notebooks/baseline_eval.ipynb` en Google Colab (Runtime > Change
    runtime type > T4 GPU), subir `business.db` y `questions.json`, y correr
    todas las celdas.
-3. El notebook reporta la exactitud de ejecución del modelo evaluado y
-   guarda `results/baseline_results.json`.
+3. Abrir notebooks/baseline_eval.ipynb en Google Colab (Runtime > Change runtime type > T4 GPU), subir business.db y questions.json.
+Llama-3.1-8B-Instruct requiere cuenta en Hugging Face, aceptar su licencia en huggingface.co/meta-llama/Llama-3.1-8B-Instruct, y un token de acceso (se pide en la celda de `notebook_login()`). Qwen2.5-Coder no requiere esto.
+4. Correr todas las celdas. El notebook evalúa los tres modelos candidatos en secuencia y guarda `results/baseline_comparison.csv` y `results/baseline_results.json`.
 
 ## Estado actual del trabajo
 
@@ -68,10 +70,9 @@ Detalle completo en [`docs/deliverable1.pdf`](docs/deliverable1.pdf).
 - [x] Tres modelos candidatos con benchmarking publicado
 - [x] Base de datos sintética de ventas e inventario (business.db)
 - [x] Set de evaluación de 15 preguntas con resultado de referencia
-      verificado (build_questions.py)
-- [x] Notebook de evaluación baseline listo para correr en Colab
-- [ ] Evidencia propia de falla (correr el notebook baseline sobre los tres
-      candidatos y reportar exactitud)
+      verificado (10 puntuales, 5 combinadas)
+- [x] Notebook de evaluación baseline corrido en Colab sobre los tres candidatos
+- [ ] Evidencia propia de falla (ver `results/`.): los tres modelos obtuvieron 0% de exactitud en las preguntas combinadas, frente a 50% y 70% en las puntuales
 - [ ] Fine-tuning QLoRA sobre el modelo principal (próximo entregable)
 - [ ] Etapa de redacción de reporte ejecutivo con verificación de fidelidad
       numérica (próximo entregable)
@@ -81,8 +82,16 @@ Detalle completo en [`docs/deliverable1.pdf`](docs/deliverable1.pdf).
 | Modelo | Parámetros | EX en BIRD-dev (publicado) |
 |---|---|---|
 | Qwen2.5-Coder-7B-Instruct | 7B | 50.9% |
-| Qwen2.5-Coder-3B-Instruct | 3B | por medir |
+| Qwen2.5-Coder-3B-Instruct | 3B | no reportado en la literatura |
 | Llama-3.1-8B-Instruct | 8B | 42.0% |
+
+Evidencia propia, sobre el set de 15 preguntas de negocio del equipo (ver results/baseline_comparison.csv), no comparable directamente con BIRD:
+
+| Modelo | Puntual Combinada | Global |
+|---|---|---|
+| Qwen2.5-Coder-7B-Instruct	| 50% |	0% | 33.3% |
+| Qwen2.5-Coder-3B-Instruct | 70% |	0% | 46.7% |
+| Llama-3.1-8B-Instruct	| 70% |	0% | 46.7% |
 
 ## Referencias
 
