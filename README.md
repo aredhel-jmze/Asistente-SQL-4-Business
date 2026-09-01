@@ -87,7 +87,7 @@ Llama-3.1-8B-Instruct requiere cuenta en Hugging Face, aceptar su licencia en hu
 
 Evidencia propia, sobre el set de 15 preguntas de negocio del equipo (ver results/baseline_comparison.csv), no comparable directamente con BIRD:
 
-| Modelo | Puntual Combinada | Global |
+| Modelo | Puntual | Combinada | Global |
 |---|---|---|
 | Qwen2.5-Coder-7B-Instruct	| 50% |	0% | 33.3% |
 | Qwen2.5-Coder-3B-Instruct | 70% |	0% | 46.7% |
