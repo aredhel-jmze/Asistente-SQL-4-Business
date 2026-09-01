@@ -24,6 +24,15 @@ cuando las consultas ejecutadas son las necesarias y suficientes para
 responder la pregunta, y cuando cada cifra del resumen final es fiel a esos
 resultados.
 
+## Diferenciación del proyecto
+
+Text-to-SQL es una tarea ampliamente estudiada, pero la literatura existente
+se detiene casi siempre en la exactitud de una única consulta generada. Este
+proyecto extiende esa base en dos direcciones poco exploradas en modelos
+abiertos pequeños: la capacidad de planificar qué consultas son necesarias
+para responder preguntas que combinan varios datos, y la fidelidad numérica
+del reporte generado a partir de esos resultados.
+
 Detalle completo en [`docs/deliverable1.pdf`](docs/deliverable1.pdf).
 
 ## Estructura del repositorio
@@ -55,11 +64,14 @@ Detalle completo en [`docs/deliverable1.pdf`](docs/deliverable1.pdf).
    python build_questions.py
    ```
 2. Abrir `notebooks/baseline_eval.ipynb` en Google Colab (Runtime > Change
-   runtime type > T4 GPU), subir `business.db` y `questions.json`, y correr
-   todas las celdas.
-3. Abrir notebooks/baseline_eval.ipynb en Google Colab (Runtime > Change runtime type > T4 GPU), subir business.db y questions.json.
-Llama-3.1-8B-Instruct requiere cuenta en Hugging Face, aceptar su licencia en huggingface.co/meta-llama/Llama-3.1-8B-Instruct, y un token de acceso (se pide en la celda de `notebook_login()`). Qwen2.5-Coder no requiere esto.
-4. Correr todas las celdas. El notebook evalúa los tres modelos candidatos en secuencia y guarda `results/baseline_comparison.csv` y `results/baseline_results.json`.
+   runtime type > T4 GPU), subir `business.db` y `questions.json`.
+3. Llama-3.1-8B-Instruct requiere cuenta en Hugging Face, aceptar su
+   licencia en huggingface.co/meta-llama/Llama-3.1-8B-Instruct, y un token
+   de acceso (se pide en la celda de `notebook_login()`). Qwen2.5-Coder no
+   requiere esto.
+4. Correr todas las celdas. El notebook evalúa los tres modelos candidatos
+   en secuencia y guarda `results/baseline_comparison.csv` y
+   `results/baseline_results.json`.
 
 ## Estado actual del trabajo
 
@@ -101,4 +113,4 @@ Dada la velocidad de iteración y que la evidencia propia no muestra desventajas
 3. TinyLLM: Evaluation and Optimization of Small Language Models for Agentic Tasks on Edge Devices. arXiv:2511.22138, 2025.
 4. Mahapatra, Roy, Garain. Factual Inconsistency in Data-to-Text Generation Scales Exponentially with LLM Size. arXiv:2502.12372, 2025.
 5. Hui, Yang, et al. Qwen2.5-Coder Technical Report. arXiv:2409.12186, 2024.
-6. Li et al. Can LLM Already Serve as A Database Interface? A Big Bench for Large-Scale Database Grounded Text-to-SQLs. NeurIPS 2023 (arXiv:2305.03111).
+6. Li et al. Can LLM Already Serve as A Database Interface? A BIg Bench for Large-Scale Database Grounded Text-to-SQLs. NeurIPS 2023 (arXiv:2305.03111).
