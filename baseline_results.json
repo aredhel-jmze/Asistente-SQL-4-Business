@@ -1,0 +1,368 @@
+{
+  "Qwen/Qwen2.5-Coder-7B-Instruct": [
+    {
+      "id": "q01",
+      "type": "puntual",
+      "question": "Cuantas unidades del Notebook 14 pulgadas se vendieron en junio de 2026?",
+      "model_output": "SELECT SUM(quantity) FROM sales WHERE product_id = (SELECT product_id FROM products WHERE name = 'Notebook 14 pulgadas') AND sale_date LIKE '2026-06-%';",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q02",
+      "type": "puntual",
+      "question": "Cual es el ingreso total generado por la categoria Electronica en todo el semestre?",
+      "model_output": "SELECT SUM(s.amount) AS total_revenue FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Electronica' AND s.sale_date BETWEEN '2023-01-01' AND '2023-06-30';",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q03",
+      "type": "puntual",
+      "question": "Que producto tuvo el mayor ingreso total acumulado en el semestre?",
+      "model_output": "SELECT p.product_id, p.name, SUM(s.amount) AS total_sales FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2023-01-01' AND '2023-06-30' GROUP BY p.product_id, p.name ORDER BY total_sales DESC LIMIT 1;",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q04",
+      "type": "puntual",
+      "question": "Cuantas unidades en total se vendieron en la categoria Alimentos durante agosto de 2026?",
+      "model_output": "SELECT SUM(quantity) FROM sales JOIN products ON sales.product_id = products.product_id WHERE category = 'Alimentos' AND sale_date LIKE '2026-08-%';",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q05",
+      "type": "puntual",
+      "question": "Cual es el precio del producto Set de Ollas?",
+      "model_output": "SELECT price FROM products WHERE name = 'Set de Ollas';",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q06",
+      "type": "puntual",
+      "question": "Que productos tienen stock por debajo de su punto de reorden?",
+      "model_output": "SELECT p.product_id, p.name FROM products p JOIN inventory i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point;",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q07",
+      "type": "puntual",
+      "question": "Cuantas ventas distintas se registraron para la Polera Basica en todo el semestre?",
+      "model_output": "SELECT COUNT(DISTINCT sale_id) FROM sales WHERE product_id = (SELECT product_id FROM products WHERE name = 'Polera Basica') AND sale_date BETWEEN '2023-01-01' AND '2023-06-30';",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q08",
+      "type": "puntual",
+      "question": "Cual es el ingreso promedio por venta en la categoria Hogar?",
+      "model_output": "SELECT AVG(amount) FROM sales WHERE product_id IN (SELECT product_id FROM products WHERE category = 'Hogar')",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q09",
+      "type": "combinada",
+      "question": "Cual fue el crecimiento porcentual de ventas totales entre el primer trimestre (marzo a mayo) y el segundo trimestre (junio a agosto) del semestre?",
+      "model_output": "SELECT \n    ((SUM(CASE WHEN sale_date BETWEEN '2023-06-01' AND '2023-08-31' THEN amount ELSE 0 END) - SUM(CASE WHEN sale_date BETWEEN '2023-03-01' AND '2023-05-31' THEN amount ELSE 0 END)) / SUM(CASE WHEN sale_date BETWEEN '2023-03-01' AND '2023-05-31' THEN amount ELSE 0 END)) * 100 AS growth_percentage;",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q10",
+      "type": "combinada",
+      "question": "Cual fue el producto top en ingresos de cada trimestre del semestre, y cambio el lider entre el primer y el segundo trimestre?",
+      "model_output": "SELECT strftime('%Y-%m', T1.sale_date) AS quarter, T2.name AS product_name, SUM(T1.amount) AS total_sales FROM sales AS T1 JOIN products AS T2 ON T1.product_id = T2.product_id GROUP BY quarter, product_name ORDER BY quarter, total_sales DESC;",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q11",
+      "type": "combinada",
+      "question": "Cuantas unidades totales se vendieron en el semestre y cuantas de esas corresponden a la categoria Electronica?",
+      "model_output": "SELECT SUM(quantity) AS total_sales FROM sales WHERE sale_date BETWEEN '2023-01-01' AND '2023-06-30'; SELECT SUM(quantity) AS electronic_sales FROM sales JOIN products ON sales.product_id = products.product_id WHERE sale_date BETWEEN '2023-01-01' AND '2023-06-30' AND category = 'Electronica';",
+      "n_statements_generated": 2,
+      "correct": false
+    },
+    {
+      "id": "q12",
+      "type": "combinada",
+      "question": "El ingreso de agosto de 2026 fue mayor o menor que el de marzo de 2026, y en que porcentaje?",
+      "model_output": "SELECT \n    SUM(CASE WHEN strftime('%Y-%m', sale_date) = '2026-08' THEN amount ELSE 0 END) AS august_sales,\n    SUM(CASE WHEN strftime('%Y-%m', sale_date) = '2026-03' THEN amount ELSE 0 END) AS march_sales\nFROM sales;",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q13",
+      "type": "puntual",
+      "question": "Cuantos productos distintos tiene la categoria Ropa?",
+      "model_output": "SELECT COUNT(DISTINCT product_id) FROM products WHERE category = 'Ropa';",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q14",
+      "type": "combinada",
+      "question": "De los productos con stock bajo el punto de reorden, cual es el que mas ingreso genero en el semestre?",
+      "model_output": "SELECT p.product_id, p.name, SUM(s.amount) as total_sales \nFROM products p \nJOIN sales s ON p.product_id = s.product_id \nJOIN inventory i ON p.product_id = i.product_id \nWHERE i.stock < i.reorder_point \nGROUP BY p.product_id, p.name \nORDER BY total_sales DESC \nLIMIT 1;",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q15",
+      "type": "puntual",
+      "question": "Cual es el ingreso total de la tienda en todo el semestre?",
+      "model_output": "SELECT SUM(amount) AS total_sales FROM sales WHERE sale_date BETWEEN '2023-01-01' AND '2023-06-30';",
+      "n_statements_generated": 1,
+      "correct": false
+    }
+  ],
+  "Qwen/Qwen2.5-Coder-3B-Instruct": [
+    {
+      "id": "q01",
+      "type": "puntual",
+      "question": "Cuantas unidades del Notebook 14 pulgadas se vendieron en junio de 2026?",
+      "model_output": "```sql\nSELECT SUM(quantity) FROM sales WHERE product_id = (SELECT product_id FROM products WHERE name = 'Notebook 14 pulgadas') AND sale_date LIKE '2026-06-%';\n```",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q02",
+      "type": "puntual",
+      "question": "Cual es el ingreso total generado por la categoria Electronica en todo el semestre?",
+      "model_output": "```sql\nSELECT SUM(amount) AS total_income\nFROM sales\nJOIN products ON sales.product_id = products.product_id\nWHERE products.category = 'Electronics';\n```",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q03",
+      "type": "puntual",
+      "question": "Que producto tuvo el mayor ingreso total acumulado en el semestre?",
+      "model_output": "```sql\nSELECT p.name\nFROM products p\nJOIN (\n    SELECT product_id, SUM(amount) AS total_amount\n    FROM sales\n    WHERE sale_date >= '2023-01-01' AND sale_date <= '2023-12-31'\n    GROUP BY product_id\n) s ON p.product_id = s.product_id\nORDER BY total_amount DESC\nLIMIT 1;\n```",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q04",
+      "type": "puntual",
+      "question": "Cuantas unidades en total se vendieron en la categoria Alimentos durante agosto de 2026?",
+      "model_output": "```sql\nSELECT SUM(s.quantity) \nFROM sales s \nJOIN products p ON s.product_id = p.product_id \nWHERE p.category = 'Alimentos' AND s.sale_date LIKE '2026-08-%';\n```",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q05",
+      "type": "puntual",
+      "question": "Cual es el precio del producto Set de Ollas?",
+      "model_output": "SELECT price FROM products WHERE name = 'Set de Ollas';",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q06",
+      "type": "puntual",
+      "question": "Que productos tienen stock por debajo de su punto de reorden?",
+      "model_output": "SELECT p.name FROM products p JOIN inventory i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point;",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q07",
+      "type": "puntual",
+      "question": "Cuantas ventas distintas se registraron para la Polera Basica en todo el semestre?",
+      "model_output": "```sql\nSELECT COUNT(DISTINCT sale_id) FROM sales WHERE product_id = (SELECT product_id FROM products WHERE name = 'Polera Basica');\n```",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q08",
+      "type": "puntual",
+      "question": "Cual es el ingreso promedio por venta en la categoria Hogar?",
+      "model_output": "```sql\nSELECT AVG(amount) / SUM(quantity) AS average_sale_price\nFROM sales\nJOIN products ON sales.product_id = products.product_id\nWHERE products.category = 'Hogar';\n```",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q09",
+      "type": "combinada",
+      "question": "Cual fue el crecimiento porcentual de ventas totales entre el primer trimestre (marzo a mayo) y el segundo trimestre (junio a agosto) del semestre?",
+      "model_output": "```sql\nSELECT \n    (SUM(T2.amount) - SUM(T3.amount)) * 100 / SUM(T3.amount) AS percentage_growth\nFROM \n    (\n        SELECT \n            SUM(amount) AS total_amount\n        FROM \n            sales\n        WHERE \n            sale_date BETWEEN '2023-03-01' AND '2023-05-31'\n    ) AS T1,\n    (\n        SELECT \n            SUM(amount) AS total_amount\n        FROM \n            sales\n        WHERE \n            sale_date BETWEEN '2023-06-01' AND '2023-08-31'\n    ) AS T2,\n    (\n        SELECT \n            SUM(amount) AS total_amount\n        FROM \n            sales\n    ) AS T3;\n```",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q10",
+      "type": "combinada",
+      "question": "Cual fue el producto top en ingresos de cada trimestre del semestre, y cambio el lider entre el primer y el segundo trimestre?",
+      "model_output": "```sql\nWITH QuarterSales AS (\n    SELECT \n        p.name AS product_name,\n        SUM(s.amount) AS total_sales,\n        DATE_FORMAT(s.sale_date, '%Y-%m') AS quarter\n    FROM \n        products p\n    JOIN \n        sales s ON p.product_id = s.product_id\n    GROUP BY \n        p.product_id, quarter\n),\nQuarterSalesRanked AS (\n    SELECT \n        product_name,\n        total_sales,\n        quarter,\n        RANK() OVER (PARTITION BY quarter ORDER BY total_sales DESC) AS rank\n    FROM \n        QuarterSales\n)\nSELECT \n    quarter,\n    product_name,\n    total_sales\nFROM \n    QuarterSalesRanked\nWHERE \n    rank = 1;\n```",
+      "n_statements_generated": 0,
+      "correct": false
+    },
+    {
+      "id": "q11",
+      "type": "combinada",
+      "question": "Cuantas unidades totales se vendieron en el semestre y cuantas de esas corresponden a la categoria Electronica?",
+      "model_output": "```sql\nSELECT SUM(s.quantity) AS total_units_sold, COUNT(*) AS electronic_units_sold\nFROM sales s\nJOIN products p ON s.product_id = p.product_id\nWHERE s.sale_date BETWEEN '2023-01-01' AND '2023-12-31'\n  AND p.category = 'Electronics';\n```",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q12",
+      "type": "combinada",
+      "question": "El ingreso de agosto de 2026 fue mayor o menor que el de marzo de 2026, y en que porcentaje?",
+      "model_output": "```sql\nSELECT \n    SUM(CASE WHEN MONTH(sale_date) = 8 AND YEAR(sale_date) = 2026 THEN amount ELSE 0 END) AS august_sales,\n    SUM(CASE WHEN MONTH(sale_date) = 3 AND YEAR(sale_date) = 2026 THEN amount ELSE 0 END) AS march_sales,\n    (SUM(CASE WHEN MONTH(sale_date) = 8 AND YEAR(sale_date) = 2026 THEN amount ELSE 0 END) - SUM(CASE WHEN MONTH(sale_date) = 3 AND YEAR(sale_date) = 2026 THEN amount ELSE 0 END)) * 100 / NULLIF(SUM(CASE WHEN MONTH(sale_date) = 3 AND YEAR(sale_date) = 2026 THEN amount ELSE 0 END), 0)\nFROM \n    sales;\n```",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q13",
+      "type": "puntual",
+      "question": "Cuantos productos distintos tiene la categoria Ropa?",
+      "model_output": "SELECT COUNT(DISTINCT product_id) FROM products WHERE category = 'Ropa';",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q14",
+      "type": "combinada",
+      "question": "De los productos con stock bajo el punto de reorden, cual es el que mas ingreso genero en el semestre?",
+      "model_output": "```sql\nSELECT p.name, SUM(s.amount) AS total_sales\nFROM products p\nJOIN inventory i ON p.product_id = i.product_id\nJOIN sales s ON p.product_id = s.product_id\nWHERE i.stock < i.reorder_point\nGROUP BY p.product_id, p.name\nORDER BY total_sales DESC\nLIMIT 1;\n```",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q15",
+      "type": "puntual",
+      "question": "Cual es el ingreso total de la tienda en todo el semestre?",
+      "model_output": "```sql\nSELECT SUM(amount) AS total_revenue\nFROM sales;\n```",
+      "n_statements_generated": 1,
+      "correct": true
+    }
+  ],
+  "meta-llama/Llama-3.1-8B-Instruct": [
+    {
+      "id": "q01",
+      "type": "puntual",
+      "question": "Cuantas unidades del Notebook 14 pulgadas se vendieron en junio de 2026?",
+      "model_output": "SELECT SUM(s.quantity) \nFROM sales s \nJOIN products p ON s.product_id = p.product_id \nWHERE p.name = 'Notebook 14 pulgadas' AND STRFTIME('%Y-%m', s.sale_date) = '2026-06';",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q02",
+      "type": "puntual",
+      "question": "Cual es el ingreso total generado por la categoria Electronica en todo el semestre?",
+      "model_output": "SELECT SUM(s.amount) FROM sales s INNER JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Electronica' AND STRFTIME('%m', s.sale_date) BETWEEN 1 AND 6 OR STRFTIME('%m', s.sale_date) BETWEEN 7 AND 12;",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q03",
+      "type": "puntual",
+      "question": "Que producto tuvo el mayor ingreso total acumulado en el semestre?",
+      "model_output": "SELECT p.name, SUM(s.amount) AS ingreso_total FROM products p INNER JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2023-01-01' AND '2023-06-30' GROUP BY p.product_id ORDER BY ingreso_total DESC LIMIT 1;\n\nSELECT p.name, SUM(s.amount) AS ingreso_total FROM products p INNER JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2022-07-01' AND '2022-12-31' GROUP BY p.product_id ORDER BY ingreso_total DESC LIMIT 1;\n\nSELECT p.name, SUM(s.amount) AS ingreso_total FROM products p INNER JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2023-01-01' AND '2023-12-31' GROUP BY p.product_id ORDER BY ingreso_total DESC LIMIT 1;",
+      "n_statements_generated": 3,
+      "correct": false
+    },
+    {
+      "id": "q04",
+      "type": "puntual",
+      "question": "Cuantas unidades en total se vendieron en la categoria Alimentos durante agosto de 2026?",
+      "model_output": "SELECT SUM(s.quantity) FROM sales s INNER JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Alimentos' AND s.sale_date LIKE '2026-08-%';",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q05",
+      "type": "puntual",
+      "question": "Cual es el precio del producto Set de Ollas?",
+      "model_output": "SELECT price FROM products WHERE name = 'Set de Ollas';",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q06",
+      "type": "puntual",
+      "question": "Que productos tienen stock por debajo de su punto de reorden?",
+      "model_output": "SELECT p.name FROM products p INNER JOIN inventory i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q07",
+      "type": "puntual",
+      "question": "Cuantas ventas distintas se registraron para la Polera Basica en todo el semestre?",
+      "model_output": "SELECT COUNT(DISTINCT sale_id) \nFROM sales \nWHERE product_id = (SELECT product_id FROM products WHERE name = 'Polera Basica');",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q08",
+      "type": "puntual",
+      "question": "Cual es el ingreso promedio por venta en la categoria Hogar?",
+      "model_output": "SELECT AVG(T2.amount) FROM products AS T1 INNER JOIN sales AS T2 ON T1.product_id = T2.product_id WHERE T1.category = 'Hogar';",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q09",
+      "type": "combinada",
+      "question": "Cual fue el crecimiento porcentual de ventas totales entre el primer trimestre (marzo a mayo) y el segundo trimestre (junio a agosto) del semestre?",
+      "model_output": "SELECT SUM(CASE WHEN EXTRACT(MONTH FROM sale_date) BETWEEN 3 AND 5 THEN amount ELSE 0 END) AS primer_trimestre,\n       SUM(CASE WHEN EXTRACT(MONTH FROM sale_date) BETWEEN 6 AND 8 THEN amount ELSE 0 END) AS segundo_trimestre,\n       (SUM(CASE WHEN EXTRACT(MONTH FROM sale_date) BETWEEN 6 AND 8 THEN amount ELSE 0 END) - SUM(CASE WHEN EXTRACT(MONTH FROM sale_date) BETWEEN 3 AND 5 THEN amount ELSE 0 END)) / SUM(CASE WHEN EXTRACT(MONTH FROM sale_date) BETWEEN 3 AND 5 THEN amount ELSE 0 END) * 100 AS crecimiento_porcentual\nFROM sales;\n\nSELECT \n  SUM(CASE WHEN EXTRACT(YEAR FROM sale_date) = 2022 AND EXTRACT(MONTH FROM sale_date) BETWEEN 3 AND 5 THEN amount ELSE 0 END) AS primer_trimestre,\n  SUM(CASE WHEN EXTRACT(YEAR FROM sale_date) = 2022 AND EXTRACT(MONTH FROM sale_date) BETWEEN 6 AND 8 THEN amount ELSE 0 END) AS segundo_trimestre,\n  (SUM(CASE WHEN EXTRACT(YEAR FROM sale_date) = 2022 AND EXTRACT(MONTH FROM sale_date) BETWEEN 6 AND 8 THEN amount ELSE 0 END) - SUM(CASE",
+      "n_statements_generated": 2,
+      "correct": false
+    },
+    {
+      "id": "q10",
+      "type": "combinada",
+      "question": "Cual fue el producto top en ingresos de cada trimestre del semestre, y cambio el lider entre el primer y el segundo trimestre?",
+      "model_output": "SELECT product_id, SUM(amount) AS total_amount FROM sales WHERE sale_date LIKE '2022-01-%' OR sale_date LIKE '2022-02-%' OR sale_date LIKE '2022-03-%' GROUP BY product_id ORDER BY total_amount DESC;\n\nSELECT product_id, SUM(amount) AS total_amount FROM sales WHERE sale_date LIKE '2022-04-%' OR sale_date LIKE '2022-05-%' OR sale_date LIKE '2022-06-%' GROUP BY product_id ORDER BY total_amount DESC;\n\nSELECT p1.product_id, p1.total_amount, p2.total_amount FROM (SELECT product_id, SUM(amount) AS total_amount FROM sales WHERE sale_date LIKE '2022-01-%' OR sale_date LIKE '2022-02-%' OR sale_date LIKE '2022-03-%' GROUP BY product_id) p1 INNER JOIN (SELECT product_id, SUM(amount) AS total_amount FROM sales WHERE sale_date LIKE '2022-04-%' OR sale_date LIKE '2022-05-%' OR sale_date LIKE '2022-06-%' GROUP BY product_id) p2 ON p1.product_id = p2.product_id WHERE p1.total_amount > p2.total_amount;",
+      "n_statements_generated": 3,
+      "correct": false
+    },
+    {
+      "id": "q11",
+      "type": "combinada",
+      "question": "Cuantas unidades totales se vendieron en el semestre y cuantas de esas corresponden a la categoria Electronica?",
+      "model_output": "SELECT SUM(quantity) FROM sales WHERE sale_date LIKE '2022-%' OR sale_date LIKE '2023-%';\nSELECT SUM(CASE WHEN category = 'Electronica' THEN quantity ELSE 0 END) FROM sales WHERE sale_date LIKE '2022-%' OR sale_date LIKE '2023-%';",
+      "n_statements_generated": 2,
+      "correct": false
+    },
+    {
+      "id": "q12",
+      "type": "combinada",
+      "question": "El ingreso de agosto de 2026 fue mayor o menor que el de marzo de 2026, y en que porcentaje?",
+      "model_output": "SELECT SUM(CASE WHEN EXTRACT(YEAR FROM sale_date) = 2026 AND EXTRACT(MONTH FROM sale_date) = 8 THEN amount ELSE 0 END) / SUM(CASE WHEN EXTRACT(YEAR FROM sale_date) = 2026 AND EXTRACT(MONTH FROM sale_date) = 3 THEN amount ELSE 0 END) * 100 AS porcentaje FROM sales;\nSELECT SUM(CASE WHEN EXTRACT(YEAR FROM sale_date) = 2026 AND EXTRACT(MONTH FROM sale_date) = 8 THEN amount ELSE 0 END) AS ingreso_agosto, SUM(CASE WHEN EXTRACT(YEAR FROM sale_date) = 2026 AND EXTRACT(MONTH FROM sale_date) = 3 THEN amount ELSE 0 END) AS ingreso_marzo FROM sales;",
+      "n_statements_generated": 2,
+      "correct": false
+    },
+    {
+      "id": "q13",
+      "type": "puntual",
+      "question": "Cuantos productos distintos tiene la categoria Ropa?",
+      "model_output": "SELECT COUNT(DISTINCT product_id) FROM products WHERE category = 'Ropa';",
+      "n_statements_generated": 1,
+      "correct": true
+    },
+    {
+      "id": "q14",
+      "type": "combinada",
+      "question": "De los productos con stock bajo el punto de reorden, cual es el que mas ingreso genero en el semestre?",
+      "model_output": "SELECT p.name FROM products p \nINNER JOIN inventory i ON p.product_id = i.product_id \nWHERE i.stock < i.reorder_point \nAND p.product_id IN (\n  SELECT s.product_id \n  FROM sales s \n  WHERE s.sale_date BETWEEN '2023-01-01' AND '2023-06-30' \n  GROUP BY s.product_id \n  ORDER BY SUM(s.amount) DESC \n  LIMIT 1\n);",
+      "n_statements_generated": 1,
+      "correct": false
+    },
+    {
+      "id": "q15",
+      "type": "puntual",
+      "question": "Cual es el ingreso total de la tienda en todo el semestre?",
+      "model_output": "SELECT SUM(amount) FROM sales WHERE sale_date LIKE '2023-01%' OR sale_date LIKE '2023-02%' OR sale_date LIKE '2023-03%' OR sale_date LIKE '2023-04%' OR sale_date LIKE '2023-05%' OR sale_date LIKE '2023-06%'",
+      "n_statements_generated": 1,
+      "correct": false
+    }
+  ]
+}
