@@ -4,8 +4,9 @@
 
 > Asistente que traduce preguntas de negocio a SQL y genera reportes ejecutivos fieles a los datos, con modelos abiertos ≤8B.
 
-Generative Artificial Intelligence (580694), Spring 2026, Universidad de Concepción.
-Deliverable 1.
+Generative Artificial Intelligence (580694), Segundo semestre 2026, Universidad de Concepción.
+
+## Deliverable 1.
 
 ## Equipo
 
