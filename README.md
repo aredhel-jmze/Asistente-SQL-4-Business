@@ -2,8 +2,6 @@
 
 ### Asistente de Consultas de Negocio: SQL y Reportes Ejecutivos Fieles a los Datos
 
-> Asistente que traduce preguntas de negocio a SQL y genera reportes ejecutivos fieles a los datos, con modelos abiertos ≤8B.
-
 Generative Artificial Intelligence (580694), Segundo semestre 2026, Universidad de Concepción.
 
 ## Deliverable 1.
