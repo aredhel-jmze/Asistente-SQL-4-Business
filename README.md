@@ -121,3 +121,73 @@ Dada la velocidad de iteración y que la evidencia propia no muestra desventajas
 4. Mahapatra, Roy, Garain. Factual Inconsistency in Data-to-Text Generation Scales Exponentially with LLM Size. arXiv:2502.12372, 2025.
 5. Hui, Yang, et al. Qwen2.5-Coder Technical Report. arXiv:2409.12186, 2024.
 6. Li et al. Can LLM Already Serve as A Database Interface? A BIg Bench for Large-Scale Database Grounded Text-to-SQLs. NeurIPS 2023 (arXiv:2305.03111).
+
+## Deliverable 2
+
+Deliverable 2 commits to `Qwen/Qwen2.5-Coder-3B-Instruct`, the smallest
+candidate and the model tied for the best local baseline result. The first
+solution targets the diagnosed failure in combined questions through structured
+planning, relevant-schema retrieval, read-only SQLite tool use, bounded repair
+retries, deterministic result composition, and report-fidelity validation.
+
+The 15 questions in `data/questions.json` remain unchanged. Baseline and
+solution receive the same inputs and use the same SQL-result criterion: a query
+is correct when its executed rows match the reference rows, independently of
+the textual SQL form. The structured solution additionally records final-answer
+and report-fidelity checks because the project definition requires an executive
+report faithful to the data.
+
+### Deliverable 2 files
+
+```
+.
+├── src/sql4business/
+│   ├── composition.py       Deterministic operations between SQL results
+│   ├── evaluation.py        Shared correctness checks
+│   ├── model.py             Model wrapper and English prompts
+│   ├── pipeline.py          End-to-end structured assistant
+│   └── sql_tools.py         Schema retrieval and read-only SQLite execution
+├── scripts/
+│   ├── evaluate_baseline_solution.py  Same-input comparison
+│   ├── evaluate_deliverable2.py       Solution-only evaluation
+│   └── run_deliverable2.py            One-question execution
+├── notebooks/
+│   └── deliverable2_demo.ipynb        Colab/VS Code demonstration
+├── tests/
+│   └── test_sql4business.py           Local deterministic tests
+└── docs/deliverable2.tex              One-page technical document source
+```
+
+### Local verification
+
+The deterministic components can be checked without a GPU:
+
+```
+python3 -m unittest discover -s tests -v
+python3 -m py_compile src/sql4business/*.py scripts/*.py
+```
+
+The full model run needs a GPU runtime. A T4 cannot be executed inside the
+local VS Code process, so the notebook is Colab-compatible and the source code
+remains inspectable and testable from VS Code. In Colab, upload or clone this
+repository, install `requirements.txt`, open
+`notebooks/deliverable2_demo.ipynb`, and run all cells. The notebook runs the
+selected model, shows a combined-question trace, and writes
+`results/deliverable2_comparison.json`.
+
+After the GPU run, update the technical document with the measured values and
+the first real solution failure:
+
+```
+python3 scripts/update_deliverable2_tex.py
+```
+
+For a single question after dependencies are installed:
+
+```
+python3 scripts/run_deliverable2.py "What was the percentage growth in total sales between the first and second quarter?"
+```
+
+The pipeline writes the plan, executed SQL, rows, composition, report,
+attempts, errors, and report-fidelity result to the requested trace file. It
+never substitutes a gold answer after a failed model execution.

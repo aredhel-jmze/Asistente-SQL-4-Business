@@ -1,0 +1,58 @@
+\documentclass[10pt]{article}
+\usepackage[margin=1.25cm,top=0.9cm,bottom=0.9cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{parskip}
+
+\definecolor{ucblue}{RGB}{0,51,102}
+\definecolor{ucgray}{RGB}{90,90,90}
+\hypersetup{colorlinks=true,urlcolor=ucblue,linkcolor=ucblue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries\color{ucblue} SQL4Business: Deliverable 2}\\[3pt]
+{\small Generative Artificial Intelligence (580694), Universidad de Concepcion}
+\end{center}
+
+\textbf{Task and model.} We preserve Deliverable 1: answer punctual and combined business questions by executing the necessary SQLite queries and producing a numerically faithful executive report. We commit to \texttt{Qwen/Qwen2.5-Coder-3B-Instruct} because it is the smallest candidate, matches the best local baseline accuracy (46.7\%), and fits faster iteration on a T4. Qwen-7B costs more parameters without a local advantage; Llama-8B is larger, gated, and also scores 46.7\% locally.
+
+\textbf{Intervention.} Direct prompting failed on all 5 combined questions. The solution separates planning from execution: a model emits a strict JSON plan; a schema retriever supplies only relevant tables; a read-only SQLite tool executes each step with up to two bounded repairs; deterministic code performs growth, comparison, share, and filter-then-rank operations; a final model report is checked against verified values. The direct baseline and solution use the same 15 questions and SQL-result correctness criterion.
+
+\begin{center}
+\fbox{\parbox{0.94\linewidth}{\centering
+Manager question $\rightarrow$ relevant schema $\rightarrow$ JSON plan $\rightarrow$ read-only SQLite steps $\rightarrow$ deterministic composition $\rightarrow$ verified English report}}
+\end{center}
+
+\textbf{Evaluation set.} 15 fixed questions from \texttt{data/questions.json}: 10 punctual and 5 combined. The database is synthetic but reproducible, contains sales and inventory from March--August 2026, and is unchanged between baseline and solution. Equivalent SQL is judged by executed rows rather than SQL string equality.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{System} & \textbf{Puntual} & \textbf{Combinada} & \textbf{Global}  \\
+\midrule
+Direct baseline (Qwen-3B) & 60.0\% & 0.0\% & 40.0\% \\
+Structured solution (SQL) & 90.0\% & 60.0\% & 80.0\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{End-to-end correctness.} Including SQL execution, composed answer, and report fidelity, the structured solution achieves 80.0\%, 40.0\%, and 66.7\% globally.
+
+\textbf{Alternative and limits.} The evaluated alternative is direct prompting with the full schema and no decomposition. The structured solution still depends on the model selecting valid dates, joins, and operation types; a repair budget cannot guarantee recovery. \textbf{Failure case:} \texttt{q04: the generated SQL referenced a column unavailable in the selected table}. It is reported from a real trace without replacing its output with gold data.
+
+\textbf{Reproduction.} Run \texttt{notebooks/deliverable2\_demo.ipynb} on a Colab T4, or execute \texttt{scripts/evaluate\_baseline\_solution.py} from the repository. The README documents dependencies, paths, traces, hardware, and output files.
+
+\vfill
+\begin{footnotesize}
+Measured results from the committed Colab execution.
+\end{footnotesize}
+
+\end{document}
