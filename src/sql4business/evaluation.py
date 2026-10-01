@@ -255,16 +255,16 @@ def latex_table(summary: dict[str, Any]) -> str:
         return f"{counts[0]}/{counts[1]}"
 
     labels = {
-        "baseline": "Direct prompt (D1 baseline)",
-        "grounded": "Direct prompt + grounded schema",
-        "solution": "Structured solution",
+        "baseline": "Prompt directo (baseline D1)",
+        "grounded": "Prompt directo + esquema enriquecido",
+        "solution": "Solución estructurada",
     }
     lines = [
         r"\begin{tabular}{@{}llccccc@{}}",
         r"\toprule",
-        r"& & \multicolumn{3}{c}{\textbf{Official set (in-sample)}} & \multicolumn{2}{c}{\textbf{Held-out paraphrases}} \\",
+        r"& & \multicolumn{3}{c}{\textbf{Set oficial (in-sample)}} & \multicolumn{2}{c}{\textbf{Paráfrasis (held-out)}} \\",
         r"\cmidrule(lr){3-5}\cmidrule(l){6-7}",
-        r"\textbf{System} & \textbf{Metric} & Punctual & Combined & All & Punctual & Combined \\",
+        r"\textbf{Sistema} & \textbf{Métrica} & Puntual & Combinada & Total & Puntual & Combinada \\",
         r"\midrule",
     ]
     for system in ("baseline", "grounded", "solution"):

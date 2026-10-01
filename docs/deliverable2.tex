@@ -25,7 +25,7 @@
 {\Large\bfseries\color{ucblue} SQL4Business: Deliverable 2}\\[2pt]
 {\small Generative Artificial Intelligence (580694), Universidad de Concepci\'on}\\[1pt]
 {\small Aredhel Jim\'enez, Bryan Riquelme, Guido Salazar, Vicente So\~nez}\\[1pt]
-{\small Code: \href{https://github.com/aredhel-jmze/Asistente-SQL-4-Business}{github.com/aredhel-jmze/Asistente-SQL-4-Business}
+{\small C\'odigo: \href{https://github.com/aredhel-jmze/Asistente-SQL-4-Business}{github.com/aredhel-jmze/Asistente-SQL-4-Business}
 \quad$\vert$\quad Video: \VideoURL}
 \end{center}
 
@@ -36,16 +36,16 @@
   box/.default=2.2cm,
   llm/.style={box=#1, fill=ucblue!8}, llm/.default=2.2cm,
   arrow/.style={-{Stealth[length=4pt]}, thick, ucblue}, node distance=0.3cm]
-  \node[box=1.45cm] (q) {Manager\\question};
-  \node[box, right=of q] (s) {Grounded schema\\{\tiny exact labels, dates, joins}};
-  \node[llm, right=of s] (p) {Planner (Qwen 3B)\\{\tiny JSON steps + operation}};
-  \node[box, right=of p] (x) {Read-only SQLite\\{\tiny validation, step refs}};
-  \node[box, right=of x] (c) {Deterministic\\composition};
-  \node[llm, right=of c] (r) {Reporter (Qwen 3B)\\{\tiny question's language}};
-  \node[box=1.55cm, right=of r] (f) {Fidelity\\check};
+  \node[box=1.45cm] (q) {Pregunta del\\gerente};
+  \node[box, right=of q] (s) {Esquema enriquecido\\{\tiny etiquetas, fechas, joins}};
+  \node[llm, right=of s] (p) {Planificador (Qwen 3B)\\{\tiny pasos JSON + operaci\'on}};
+  \node[box, right=of p] (x) {SQLite solo lectura\\{\tiny validaci\'on, ref. a pasos}};
+  \node[box, right=of x] (c) {Composici\'on\\determinista};
+  \node[llm, right=of c] (r) {Reportero (Qwen 3B)\\{\tiny idioma de la pregunta}};
+  \node[box=1.55cm, right=of r] (f) {Verificaci\'on\\de fidelidad};
   \foreach \a/\b in {q/s, s/p, p/x, x/c, c/r, r/f} \draw[arrow] (\a) -- (\b);
-  \draw[arrow, dashed] (x.south) -- ++(0,-0.28) -| node[pos=0.25, below, font=\tiny] {SQL error $\rightarrow$ repair ($\leq 2$)} (p.south);
-  \draw[arrow, dashed] (c.north) -- ++(0,0.26) -| node[pos=0.25, above, font=\tiny] {shape error $\rightarrow$ repair} (p.north);
+  \draw[arrow, dashed] (x.south) -- ++(0,-0.28) -| node[pos=0.25, below, font=\tiny] {error SQL $\rightarrow$ reparaci\'on ($\leq 2$)} (p.south);
+  \draw[arrow, dashed] (c.north) -- ++(0,0.26) -| node[pos=0.25, above, font=\tiny] {error de forma $\rightarrow$ reparaci\'on} (p.north);
 \end{tikzpicture}
 \end{center}
 \vspace{-6pt}
@@ -53,64 +53,71 @@
 \begin{multicols}{2}
 \small
 
-\head{Task, failure and model.} Unchanged from Deliverable 1: answer punctual and combined business
-questions by executing the necessary SQL and reporting only figures faithful to the results. With
-direct prompting, all three candidates scored 0/5 on combined questions (invented years,
-translated labels, other SQL dialects, one query for a multi-value question). We commit to
-\texttt{Qwen/Qwen2.5-Coder-3B-Instruct} (revision \texttt{488639f}, NF4 4-bit, bf16 compute, greedy
-decoding, Colab T4): the smallest candidate, tied for the best local baseline (46.7\%);
-Qwen-7B scored 33.3\% and Llama-8B also 46.7\% with more parameters and gated access.
+\head{Tarea, falla y modelo.} Sin cambios respecto del Deliverable 1: responder preguntas de
+negocio puntuales y combinadas ejecutando el SQL necesario y reportando solo cifras fieles a
+los resultados. Con prompting directo, los tres candidatos obtuvieron 0/5 en preguntas combinadas
+(a\~nos inventados, etiquetas traducidas, dialectos de otros motores, una sola consulta para una
+pregunta de varios valores). Nos comprometemos con \texttt{Qwen/Qwen2.5-Coder-3B-Instruct}
+(revisi\'on \texttt{488639f}, NF4 de 4 bits, c\'omputo bf16, decodificaci\'on greedy, Colab T4):
+es el menor candidato y empat\'o el mejor baseline propio (46.7\%); Qwen-7B obtuvo 33.3\% y
+Llama-8B tambi\'en 46.7\%, con m\'as par\'ametros y acceso restringido.
 
-\head{Intervention.} Each part targets a diagnosed error. The grounded schema lists exact labels,
-the date range and join keys (translated labels, invented years). The planner decomposes the
-question into SQL steps and names one operation; code, not the model, computes growth, share,
-comparison and filter-then-rank (combined questions, mental arithmetic). SQLite runs read-only;
-validation or shape errors go back to the planner up to twice. A later step may read an
-earlier one (\texttt{FROM step\_1}), expanded as a CTE. The reporter writes in the question's
-language, and the fidelity check accepts a figure only if it equals the verified answer or
-the evidence at the precision written, and checks the stated direction of a change.
+\head{Intervenci\'on.} Cada componente ataca un error diagnosticado. El esquema enriquecido
+entrega las etiquetas exactas, el rango de fechas y las llaves de uni\'on (etiquetas traducidas,
+a\~nos inventados). El planificador descompone la pregunta en pasos SQL y nombra una operaci\'on;
+el c\'odigo, no el modelo, calcula crecimiento, participaci\'on, comparaci\'on y
+filtro con ranking (preguntas combinadas, aritm\'etica mental). SQLite se ejecuta en solo lectura;
+los errores de validaci\'on o de forma vuelven al planificador hasta dos veces. Un paso posterior
+puede leer uno anterior (\texttt{FROM step\_1}), que se expande como CTE. El reportero escribe en
+el idioma de la pregunta, y la verificaci\'on acepta una cifra solo si coincide con la respuesta
+verificada o con la evidencia a la precisi\'on escrita, y controla la direcci\'on del cambio.
 
-\head{Evaluation.} Official set: the 15 Deliverable 1 questions (10 punctual, 5 combined), used
-while developing, so in-sample. Held-out set: 12 paraphrases (5/7) with the same gold, written
-during an audit and not used for design. Every system gets the same inputs and criteria:
-\textit{sql} is the Deliverable 1 criterion (each gold result set produced exactly);
-\textit{answer} checks the final answer, however it was computed; \textit{report} and
-\textit{e2e} (answer and report correct) apply to the solution. The baseline is the
-Deliverable 1 prompt verbatim; the alternative strategy adds only the grounded schema to it.
+\head{Evaluaci\'on.} Set oficial: las 15 preguntas del Deliverable 1 (10 puntuales, 5 combinadas),
+usadas durante el desarrollo, por lo que es in-sample. Set externo: 12 par\'afrasis (5/7) con la
+misma referencia, escritas en una auditor\'ia y no usadas para el dise\~no. Todos los sistemas
+reciben las mismas entradas y criterios: \textit{sql} es el criterio del Deliverable 1 (cada
+resultado de referencia se produce exactamente); \textit{answer} revisa la respuesta final, sin
+importar c\'omo se obtuvo; \textit{report} y \textit{e2e} (respuesta y reporte correctos) se
+aplican a la soluci\'on. El baseline es el prompt del Deliverable 1, literal; la estrategia
+alternativa solo le agrega el esquema enriquecido.
 
-\head{Results (table below).} The solution answers 11/15 official and 10/12 held-out
-questions, against 8/15 and 5/12 for the baseline; on combined questions, 2/5 and 5/7
-against 1/5 and 2/7. It answers and reports faithfully in 10/15 and 10/12. The grounded schema
-alone gives most punctual gains (9/10 official answers); decomposition adds the combined ones.
-Cost on the T4: 16.3\,s per question against 6.2\,s for the baseline.
+\head{Resultados (tabla inferior).} La soluci\'on responde 11/15 preguntas oficiales y 10/12
+externas, frente a 8/15 y 5/12 del baseline; en combinadas, 2/5 y 5/7 frente a 1/5 y 2/7.
+Responde y reporta fielmente en 10/15 y 10/12. El esquema enriquecido explica la mayor parte de
+la mejora en puntuales (9/10 respuestas oficiales); la descomposici\'on suma las combinadas.
+Costo en la T4: 16.3\,s por pregunta frente a 6.2\,s del baseline.
 
-\head{Declared deviations.} (1) The first version (17-09) chose the operation with keywords
-copied from the 5 combined questions and vetoed other plans: 12/15 in-sample but 0/7 on
-combined paraphrases. It was removed. (2) That version also used a new English baseline prompt
-(40\%); the D1 prompt is restored. (3) The \textit{answer} metric was added because the
-\textit{sql} criterion rejects correct one-query answers (the baseline answers q14 correctly).
-(4) QLoRA fine-tuning, planned in D1, was not applied. (5) The first run of this version (v2)
-discarded plain-text reports as malformed JSON; v3 changes only the reporter's output format,
-and its SQL and answers are identical to v2 in 27/27 questions.
+\head{Desviaciones declaradas.} (1) La primera versi\'on (17-09) eleg\'ia la operaci\'on con
+palabras copiadas de las 5 preguntas combinadas y vetaba otros planes: 12/15 in-sample, pero 0/7
+en par\'afrasis combinadas. Se elimin\'o. (2) Esa versi\'on usaba adem\'as un nuevo prompt de
+baseline en ingl\'es (40\%); se restituy\'o el prompt del D1. (3) Se agreg\'o la m\'etrica
+\textit{answer} porque el criterio \textit{sql} rechaza respuestas correctas de una sola consulta
+(el baseline responde bien q14). (4) No se aplic\'o el fine-tuning QLoRA previsto en el D1.
+(5) La primera corrida de esta versi\'on (v2) descart\'o reportes en texto plano por no ser JSON;
+v3 solo cambia el formato de salida del reportero, y su SQL y respuestas son id\'enticos a v2 en
+27/27 preguntas.
 
-\head{Failure case: q09.} The planner filters \texttt{strftime('\%Y-\%m', sale\_date) BETWEEN
-'2026-03-01' AND '2026-05-31'}. Comparing \texttt{'2026-03'} with a full date drops March and
-June, so the code computes 70.06\% growth instead of 60.13\%. The SQL is valid, the result is
-a single number and the report is faithful to it, so neither validation, repair nor the
-fidelity check can see the error: they check form and figures, not the meaning of a predicate.
-In q10 the model returns \texttt{strftime('\%Q')} again after the error message, and in q09-p
-(held-out) it plans a single step, so the growth is never computed; its report invents 26\%,
-10\% and 12\%, and the check rejects it.
+\head{Caso de falla: q09.} El planificador filtra con \texttt{strftime('\%Y-\%m', sale\_date)
+BETWEEN '2026-03-01' AND '2026-05-31'}. Comparar \texttt{'2026-03'} con una fecha completa deja
+fuera marzo y junio, por lo que el c\'odigo calcula un crecimiento de 70.06\% en vez de 60.13\%.
+El SQL es v\'alido, el resultado es un solo n\'umero y el reporte es fiel a \'el, de modo que ni
+la validaci\'on, ni la reparaci\'on, ni la verificaci\'on detectan el error: revisan forma y
+cifras, no el significado de un predicado. En q10 el modelo vuelve a usar
+\texttt{strftime('\%Q')} pese al mensaje de error, y en q09-p (externa) planifica un solo paso,
+por lo que el crecimiento nunca se calcula; su reporte inventa 26\%, 10\% y 12\%, y la
+verificaci\'on lo rechaza.
 
-\head{Limits.} Official results are in-sample and both sets are small (27 questions, synthetic
-data). The fidelity check verifies figures, not their attribution: in q11 it accepts 488
-reported as the total, and in q14-p a product id taken from a step. It is also conservative:
-it rejects ``step 1'' in q13. When the planner picks \textit{direct} for a combined question,
-the answer depends on one query. Retries rarely fix a plan (strong model priors).
+\head{L\'imites.} Los resultados oficiales son in-sample y ambos sets son peque\~nos (27
+preguntas, datos sint\'eticos). La verificaci\'on controla cifras, no su atribuci\'on: en q11
+acepta 488 presentado como total, y en q14-p un id de producto tomado de un paso. Adem\'as es
+conservadora: rechaza ``paso 1'' en q13. Cuando el planificador elige \textit{direct} para una
+pregunta combinada, la respuesta depende de una sola consulta. Los reintentos rara vez corrigen
+un plan (sesgos fuertes del modelo).
 
-\head{Reproduction.} \texttt{notebooks/deliverable2\_demo.ipynb} on a Colab T4 (\textit{Run all},
-about 25 min) clones the repository, runs the demo shown in the video and the evaluation, and
-writes \texttt{results/deliverable2\_v3.json} and the table below; no uploads or tokens needed.
+\head{Reproducci\'on.} \texttt{notebooks/deliverable2\_demo.ipynb} en una T4 de Colab
+(\textit{Run all}, unos 25 min) clona el repositorio, corre la demo del video y la evaluaci\'on,
+y escribe \texttt{results/deliverable2\_v3.json} y la tabla inferior; no requiere subir archivos
+ni tokens.
 \end{multicols}
 
 \vspace{-4pt}

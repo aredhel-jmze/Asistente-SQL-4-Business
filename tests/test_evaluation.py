@@ -84,7 +84,7 @@ class EvaluateTests(unittest.TestCase):
                    "solution": {m: counts for m in ("sql", "answer", "report", "e2e")}}
         table = latex_table({"official": systems, "heldout": systems})
         self.assertEqual(table.count(r"\\"), 10)  # 2 header rows + 8 metric rows
-        self.assertIn("Structured solution & sql & 1/2 & 0/1 & 1/3 & 1/2 & 0/1", table)
+        self.assertIn("Solución estructurada & sql & 1/2 & 0/1 & 1/3 & 1/2 & 0/1", table)
 
 
 if __name__ == "__main__":

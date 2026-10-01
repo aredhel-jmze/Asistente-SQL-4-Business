@@ -205,7 +205,7 @@ resultado), y el resumen de la evaluación.
   pero no se aplicó. Se optó por una intervención sin entrenamiento (planificación,
   herramientas y composición determinista), porque el fallo diagnosticado es de
   planificación y cálculo más que de conocimiento de SQL.
-- **Idioma:** el documento técnico está en inglés; el reporte del asistente se escribe en
+- **Idioma:** el documento técnico está en español; el reporte del asistente se escribe en
   el idioma de la pregunta.
 
 ## Referencias
