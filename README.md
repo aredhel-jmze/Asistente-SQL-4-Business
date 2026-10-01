@@ -136,7 +136,7 @@ PDF se genera desde ese archivo.
 ## Cómo reproducir
 
 1. **Todo lo del PDF y el video, en Colab:** abrir
-   [`notebooks/deliverable2_demo.ipynb`](https://colab.research.google.com/github/VicenteSonez/Asistente-SQL-4-Business/blob/d2-correcciones/notebooks/deliverable2_demo.ipynb),
+   [`notebooks/deliverable2_demo.ipynb`](https://colab.research.google.com/github/aredhel-jmze/Asistente-SQL-4-Business/blob/main/notebooks/deliverable2_demo.ipynb),
    elegir `Runtime > Change runtime type > T4 GPU` y luego `Run all`. El notebook clona este
    repositorio en `REF`, instala `requirements.txt` (versiones fijadas), corre la demo y la
    evaluación completa (unos 20–25 minutos) y escribe `results/deliverable2_v3.json` y
