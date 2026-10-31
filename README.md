@@ -10,7 +10,7 @@ Generative Artificial Intelligence (580694), Universidad de Concepción.
 |---|---|---|
 | Deliverable 1 | [`docs/deliverable1.pdf`](docs/deliverable1.pdf) | [`notebooks/baseline_eval.ipynb`](notebooks/baseline_eval.ipynb) |
 | Deliverable 2 | [`docs/deliverable2.pdf`](docs/deliverable2.pdf) · [video](https://drive.google.com/file/d/1ovemshyIkbVYasXr7zaFDXIrdrHN7OH5/view) | [`notebooks/deliverable2_demo.ipynb`](notebooks/deliverable2_demo.ipynb) |
-| Deliverable 3 | [`docs/deliverable3.pdf`](docs/deliverable3.pdf) · video: _(enlace pendiente)_ | [`notebooks/deliverable3_demo.ipynb`](notebooks/deliverable3_demo.ipynb) |
+| Deliverable 3 | [`docs/deliverable3.pdf`](docs/deliverable3.pdf) · [video](https://drive.google.com/file/d/1I9KuGPZe99HninfvLdC2E1XQjTf00EQZ/view?usp=sharing) | [`notebooks/deliverable3_demo.ipynb`](notebooks/deliverable3_demo.ipynb) |
 
 ## Definición de la tarea
 
