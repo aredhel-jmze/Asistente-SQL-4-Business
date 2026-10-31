@@ -1,0 +1,2027 @@
+{
+ "config": "d2",
+ "summary": {
+  "official": {
+   "sql": {
+    "puntual": [
+     9,
+     10
+    ],
+    "combinada": [
+     2,
+     5
+    ],
+    "global": [
+     11,
+     15
+    ]
+   },
+   "answer": {
+    "puntual": [
+     9,
+     10
+    ],
+    "combinada": [
+     2,
+     5
+    ],
+    "global": [
+     11,
+     15
+    ]
+   },
+   "report": {
+    "puntual": [
+     8,
+     10
+    ],
+    "combinada": [
+     4,
+     5
+    ],
+    "global": [
+     12,
+     15
+    ]
+   },
+   "e2e": {
+    "puntual": [
+     8,
+     10
+    ],
+    "combinada": [
+     2,
+     5
+    ],
+    "global": [
+     10,
+     15
+    ]
+   },
+   "model_calls": 2.13,
+   "seconds": 16.35
+  },
+  "heldout": {
+   "sql": {
+    "puntual": [
+     5,
+     5
+    ],
+    "combinada": [
+     3,
+     7
+    ],
+    "global": [
+     8,
+     12
+    ]
+   },
+   "answer": {
+    "puntual": [
+     5,
+     5
+    ],
+    "combinada": [
+     5,
+     7
+    ],
+    "global": [
+     10,
+     12
+    ]
+   },
+   "report": {
+    "puntual": [
+     5,
+     5
+    ],
+    "combinada": [
+     6,
+     7
+    ],
+    "global": [
+     11,
+     12
+    ]
+   },
+   "e2e": {
+    "puntual": [
+     5,
+     5
+    ],
+    "combinada": [
+     5,
+     7
+    ],
+    "global": [
+     10,
+     12
+    ]
+   },
+   "model_calls": 2.0,
+   "seconds": 14.52
+  }
+ },
+ "records": [
+  {
+   "set": "official",
+   "id": "q01",
+   "type": "puntual",
+   "question": "Cuantas unidades del Notebook 14 pulgadas se vendieron en junio de 2026?",
+   "expected": 34,
+   "result": {
+    "question": "Cuantas unidades del Notebook 14 pulgadas se vendieron en junio de 2026?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Find the sales of the Notebook 14 pulgadas in June 2026",
+       "sql": "SELECT SUM(quantity) AS total_quantity FROM sales WHERE product_id IN (SELECT product_id FROM products WHERE name = 'Notebook 14 pulgadas') AND strftime('%Y-%m', sale_date) = '2026-06'"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(quantity) AS total_quantity FROM sales WHERE product_id IN (SELECT product_id FROM products WHERE name = 'Notebook 14 pulgadas') AND strftime('%Y-%m', sale_date) = '2026-06'",
+      "rows": [
+       [
+        34
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 34,
+     "details": {}
+    },
+    "report_text": "En junio de 2026, se vendieron 34 unidades del Notebook 14 pulgadas.",
+    "report_source": "model",
+    "raw_report": "En junio de 2026, se vendieron 34 unidades del Notebook 14 pulgadas.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Find the sales of the Notebook 14 pulgadas in June 2026\",\n      \"sql\": \"SELECT SUM(quantity) AS total_quantity FROM sales WHERE product_id IN (SELECT product_id FROM products WHERE name = 'Notebook 14 pulgadas') AND strftime('%Y-%m', sale_date) = '2026-06'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 12.61,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q02",
+   "type": "puntual",
+   "question": "Cual es el ingreso total generado por la categoria Electronica en todo el semestre?",
+   "expected": 97658120,
+   "result": {
+    "question": "Cual es el ingreso total generado por la categoria Electronica en todo el semestre?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total sales for electronics category",
+       "sql": "SELECT SUM(amount) AS total_sales FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND sales.sale_date BETWEEN '2026-03-01' AND '2026-08-31'"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(amount) AS total_sales FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND sales.sale_date BETWEEN '2026-03-01' AND '2026-08-31'",
+      "rows": [
+       [
+        97658120
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 97658120,
+     "details": {}
+    },
+    "report_text": "El ingreso total generado por la categoría Electrónica en todo el semestre fue de 97658120.",
+    "report_source": "model",
+    "raw_report": "El ingreso total generado por la categoría Electrónica en todo el semestre fue de 97658120.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for electronics category\",\n      \"sql\": \"SELECT SUM(amount) AS total_sales FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND sales.sale_date BETWEEN '2026-03-01' AND '2026-08-31'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 12.25,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q03",
+   "type": "puntual",
+   "question": "Que producto tuvo el mayor ingreso total acumulado en el semestre?",
+   "expected": "Notebook 14 pulgadas",
+   "result": {
+    "question": "Que producto tuvo el mayor ingreso total acumulado en el semestre?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total sales for each product",
+       "sql": "SELECT p.name, SUM(s.amount) AS total_sales FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2026-03-01' AND '2026-08-31' GROUP BY p.product_id"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT p.name, SUM(s.amount) AS total_sales FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2026-03-01' AND '2026-08-31' GROUP BY p.product_id",
+      "rows": [
+       [
+        "Audifonos Inalambricos",
+        4948350
+       ],
+       [
+        "Notebook 14 pulgadas",
+        91298340
+       ],
+       [
+        "Mouse Optico",
+        1411430
+       ],
+       [
+        "Juego de Sabanas",
+        4198320
+       ],
+       [
+        "Set de Ollas",
+        12537910
+       ],
+       [
+        "Lampara de Escritorio",
+        1886820
+       ],
+       [
+        "Polera Basica",
+        1828170
+       ],
+       [
+        "Zapatillas Urbanas",
+        6198450
+       ],
+       [
+        "Cafe Molido 500g",
+        1181310
+       ],
+       [
+        "Aceite de Oliva 500ml",
+        1318350
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": [
+      [
+       "Audifonos Inalambricos",
+       4948350
+      ],
+      [
+       "Notebook 14 pulgadas",
+       91298340
+      ],
+      [
+       "Mouse Optico",
+       1411430
+      ],
+      [
+       "Juego de Sabanas",
+       4198320
+      ],
+      [
+       "Set de Ollas",
+       12537910
+      ],
+      [
+       "Lampara de Escritorio",
+       1886820
+      ],
+      [
+       "Polera Basica",
+       1828170
+      ],
+      [
+       "Zapatillas Urbanas",
+       6198450
+      ],
+      [
+       "Cafe Molido 500g",
+       1181310
+      ],
+      [
+       "Aceite de Oliva 500ml",
+       1318350
+      ]
+     ],
+     "details": {}
+    },
+    "report_text": "En el semestre, los Audifonos Inalambricos tuvieron el mayor ingreso total acumulado con 4948350 unidades vendidas.",
+    "report_source": "model",
+    "raw_report": "En el semestre, los Audifonos Inalambricos tuvieron el mayor ingreso total acumulado con 4948350 unidades vendidas.",
+    "report_faithful": false,
+    "report_issues": [
+     "The report does not state the verified answer [[\"Audifonos Inalambricos\", 4948350], [\"Notebook 14 pulgadas\", 91298340], [\"Mouse Optico\", 1411430], [\"Juego de Sabanas\", 4198320], [\"Set de Ollas\", 12537910], [\"Lampara de Escritorio\", 1886820], [\"Polera Basica\", 1828170], [\"Zapatillas Urbanas\", 6198450], [\"Cafe Molido 500g\", 1181310], [\"Aceite de Oliva 500ml\", 1318350]]."
+    ],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for each product\",\n      \"sql\": \"SELECT p.name, SUM(s.amount) AS total_sales FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2026-03-01' AND '2026-08-31' GROUP BY p.product_id\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": false,
+    "answer": false,
+    "report": false,
+    "e2e": false,
+    "seconds": 13.58,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q04",
+   "type": "puntual",
+   "question": "Cuantas unidades en total se vendieron en la categoria Alimentos durante agosto de 2026?",
+   "expected": 63,
+   "result": {
+    "question": "Cuantas unidades en total se vendieron en la categoria Alimentos durante agosto de 2026?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Join sales and products tables to get sales data for Alimentos category in August 2026",
+       "sql": "SELECT SUM(s.quantity) AS total_units_sold FROM sales s JOIN products p ON s.product_id = p.product_id WHERE strftime('%Y-%m', s.sale_date) = '2026-08' AND p.category = 'Alimentos'"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(s.quantity) AS total_units_sold FROM sales s JOIN products p ON s.product_id = p.product_id WHERE strftime('%Y-%m', s.sale_date) = '2026-08' AND p.category = 'Alimentos'",
+      "rows": [
+       [
+        63
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 63,
+     "details": {}
+    },
+    "report_text": "En agosto de 2026, se vendieron un total de 63 unidades en la categoría Alimentos.",
+    "report_source": "model",
+    "raw_report": "En agosto de 2026, se vendieron un total de 63 unidades en la categoría Alimentos.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total units sold in August 2026 for Alimentos category\",\n      \"sql\": \"SELECT SUM(quantity) AS total_units_sold FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08' AND products.category = 'Alimentos'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": "no such column: products.category"
+     },
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Join sales and products tables to get sales data for Alimentos category in August 2026\",\n      \"sql\": \"SELECT SUM(s.quantity) AS total_units_sold FROM sales s JOIN products p ON s.product_id = p.product_id WHERE strftime('%Y-%m', s.sale_date) = '2026-08' AND p.category = 'Alimentos'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 22.01,
+    "model_calls": 3
+   }
+  },
+  {
+   "set": "official",
+   "id": "q05",
+   "type": "puntual",
+   "question": "Cual es el precio del producto Set de Ollas?",
+   "expected": 59990,
+   "result": {
+    "question": "Cual es el precio del producto Set de Ollas?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Find the product ID for 'Set de Ollas'",
+       "sql": "SELECT product_id FROM products WHERE name = 'Set de Ollas'"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Get the price of the product",
+       "sql": "SELECT price FROM products WHERE product_id = (SELECT product_id FROM step_1)"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT product_id FROM products WHERE name = 'Set de Ollas'",
+      "rows": [
+       [
+        5
+       ]
+      ]
+     },
+     {
+      "sql": "WITH step_1 AS (SELECT product_id FROM products WHERE name = 'Set de Ollas') SELECT price FROM products WHERE product_id = (SELECT product_id FROM step_1)",
+      "rows": [
+       [
+        59990
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 59990,
+     "details": {}
+    },
+    "report_text": "El precio del producto Set de Ollas es 59990.",
+    "report_source": "model",
+    "raw_report": "El precio del producto Set de Ollas es 59990.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Find the product ID for 'Set de Ollas'\",\n      \"sql\": \"SELECT product_id FROM products WHERE name = 'Set de Ollas'\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Get the price of the product\",\n      \"sql\": \"SELECT price FROM products WHERE product_id = (SELECT product_id FROM step_1)\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 11.96,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q06",
+   "type": "puntual",
+   "question": "Que productos tienen stock por debajo de su punto de reorden?",
+   "expected": [
+    [
+     "Lampara de Escritorio"
+    ],
+    [
+     "Polera Basica"
+    ],
+    [
+     "Zapatillas Urbanas"
+    ],
+    [
+     "Cafe Molido 500g"
+    ]
+   ],
+   "result": {
+    "question": "Que productos tienen stock por debajo de su punto de reorden?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Identify products with stock below reorder point",
+       "sql": "SELECT p.name FROM products AS p JOIN inventory AS i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT p.name FROM products AS p JOIN inventory AS i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point",
+      "rows": [
+       [
+        "Lampara de Escritorio"
+       ],
+       [
+        "Polera Basica"
+       ],
+       [
+        "Zapatillas Urbanas"
+       ],
+       [
+        "Cafe Molido 500g"
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": [
+      [
+       "Lampara de Escritorio"
+      ],
+      [
+       "Polera Basica"
+      ],
+      [
+       "Zapatillas Urbanas"
+      ],
+      [
+       "Cafe Molido 500g"
+      ]
+     ],
+     "details": {}
+    },
+    "report_text": "Los productos con stock por debajo del punto de reorden son Lampara de Escritorio, Polera Basica, Zapatillas Urbanas y Cafe Molido 500g.",
+    "report_source": "model",
+    "raw_report": "Los productos con stock por debajo del punto de reorden son Lampara de Escritorio, Polera Basica, Zapatillas Urbanas y Cafe Molido 500g.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Identify products with stock below reorder point\",\n      \"sql\": \"SELECT p.name FROM products AS p JOIN inventory AS i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 11.22,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q07",
+   "type": "puntual",
+   "question": "Cuantas ventas distintas se registraron para la Polera Basica en todo el semestre?",
+   "expected": 56,
+   "result": {
+    "question": "Cuantas ventas distintas se registraron para la Polera Basica en todo el semestre?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Find distinct sales for Polera Basica",
+       "sql": "SELECT COUNT(DISTINCT sale_id) FROM sales WHERE product_id IN (SELECT product_id FROM products WHERE name = 'Polera Basica')"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT COUNT(DISTINCT sale_id) FROM sales WHERE product_id IN (SELECT product_id FROM products WHERE name = 'Polera Basica')",
+      "rows": [
+       [
+        56
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 56,
+     "details": {}
+    },
+    "report_text": "En el semestre, se registraron 56 ventas distintas de Polera Basica.",
+    "report_source": "model",
+    "raw_report": "En el semestre, se registraron 56 ventas distintas de Polera Basica.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Find distinct sales for Polera Basica\",\n      \"sql\": \"SELECT COUNT(DISTINCT sale_id) FROM sales WHERE product_id IN (SELECT product_id FROM products WHERE name = 'Polera Basica')\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 9.86,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q08",
+   "type": "puntual",
+   "question": "Cual es el ingreso promedio por venta en la categoria Hogar?",
+   "expected": 108273.54651162791,
+   "result": {
+    "question": "Cual es el ingreso promedio por venta en la categoria Hogar?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate the average sale amount for products in the 'Hogar' category",
+       "sql": "SELECT AVG(amount) AS average_sale_amount FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Hogar'"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT AVG(amount) AS average_sale_amount FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Hogar'",
+      "rows": [
+       [
+        108273.54651162791
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 108273.54651162791,
+     "details": {}
+    },
+    "report_text": "El ingreso promedio por venta en la categoría Hogar es de 108273.55.",
+    "report_source": "model",
+    "raw_report": "El ingreso promedio por venta en la categoría Hogar es de 108273.55.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate the average sale amount for products in the 'Hogar' category\",\n      \"sql\": \"SELECT AVG(amount) AS average_sale_amount FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Hogar'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 10.34,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q09",
+   "type": "combinada",
+   "question": "Cual fue el crecimiento porcentual de ventas totales entre el primer trimestre (marzo a mayo) y el segundo trimestre (junio a agosto) del semestre?",
+   "expected": {
+    "previous": 48748530.0,
+    "current": 78058920.0,
+    "growth_pct": 60.12568994388139,
+    "direction": "increase"
+   },
+   "result": {
+    "question": "Cual fue el crecimiento porcentual de ventas totales entre el primer trimestre (marzo a mayo) y el segundo trimestre (junio a agosto) del semestre?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total sales for the first quarter (March to May)",
+       "sql": "SELECT SUM(amount) AS total_sales_q1 FROM sales WHERE strftime('%Y-%m', sale_date) BETWEEN '2026-03-01' AND '2026-05-31'"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Calculate total sales for the second quarter (June to August)",
+       "sql": "SELECT SUM(amount) AS total_sales_q2 FROM sales WHERE strftime('%Y-%m', sale_date) BETWEEN '2026-06-01' AND '2026-08-31'"
+      }
+     ],
+     "operation": "growth_pct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(amount) AS total_sales_q1 FROM sales WHERE strftime('%Y-%m', sale_date) BETWEEN '2026-03-01' AND '2026-05-31'",
+      "rows": [
+       [
+        30240430
+       ]
+      ]
+     },
+     {
+      "sql": "SELECT SUM(amount) AS total_sales_q2 FROM sales WHERE strftime('%Y-%m', sale_date) BETWEEN '2026-06-01' AND '2026-08-31'",
+      "rows": [
+       [
+        51427380
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "growth_pct",
+     "value": {
+      "previous": 30240430.0,
+      "current": 51427380.0,
+      "growth_pct": 70.06166909663652,
+      "direction": "increase"
+     },
+     "details": {}
+    },
+    "report_text": "El crecimiento porcentual de ventas totales entre el primer trimestre (Marzo a Mayo) y el segundo trimestre (Junio a Agosto) del semestre fue de 70.06%.",
+    "report_source": "model",
+    "raw_report": "El crecimiento porcentual de ventas totales entre el primer trimestre (Marzo a Mayo) y el segundo trimestre (Junio a Agosto) del semestre fue de 70.06%.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for the first quarter (March to May)\",\n      \"sql\": \"SELECT SUM(amount) AS total_sales_q1 FROM sales WHERE strftime('%Y-%m', sale_date) BETWEEN '2026-03-01' AND '2026-05-31'\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Calculate total sales for the second quarter (June to August)\",\n      \"sql\": \"SELECT SUM(amount) AS total_sales_q2 FROM sales WHERE strftime('%Y-%m', sale_date) BETWEEN '2026-06-01' AND '2026-08-31'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"growth_pct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": false,
+    "answer": false,
+    "report": true,
+    "e2e": false,
+    "seconds": 18.9,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q10",
+   "type": "combinada",
+   "question": "Cual fue el producto top en ingresos de cada trimestre del semestre, y cambio el lider entre el primer y el segundo trimestre?",
+   "expected": {
+    "first": "Notebook 14 pulgadas",
+    "second": "Notebook 14 pulgadas",
+    "changed": false
+   },
+   "result": {
+    "error": "The assistant failed after 3 attempts: SQLite strftime does not support %Q; use explicit date ranges.",
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for each product in each quarter\",\n      \"sql\": \"SELECT p.name, SUM(s.amount) AS total_sales, strftime('%Q', s.sale_date) AS quarter FROM products p JOIN sales s ON p.product_id = s.product_id GROUP BY p.name, quarter\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": "SQLite strftime does not support %Q; use explicit date ranges."
+     },
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for each product in each quarter\",\n      \"sql\": \"SELECT p.name, SUM(s.amount) AS total_sales, strftime('%Y-%m', s.sale_date) AS quarter FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2026-03-01' AND '2026-08-31' GROUP BY p.name, quarter\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Rank products by total sales in each quarter\",\n      \"sql\": \"SELECT name, quarter, total_sales FROM step_1 ORDER BY total_sales DESC\"\n    },\n    {\n      \"id\": \"step_3\",\n      \"purpose\": \"Identify the top product in each quarter\",\n      \"sql\": \"SELECT name FROM step_2 LIMIT 1\"\n    },\n    {\n      \"id\": \"step_4\",\n      \"purpose\": \"Compare the top product between the first and second quarters\",\n      \"sql\": \"SELECT name FROM step_3 WHERE quarter = '2026-03-01' OR quarter = '2026-06-30'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": "no such column: quarter"
+     },
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for each product in each quarter\",\n      \"sql\": \"SELECT p.name, SUM(s.amount) AS total_sales, strftime('%Q', s.sale_date) AS quarter FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2026-03-01' AND '2026-08-31' GROUP BY p.name, quarter\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Rank products by total sales in each quarter\",\n      \"sql\": \"SELECT name, quarter, total_sales FROM step_1 ORDER BY total_sales DESC\"\n    },\n    {\n      \"id\": \"step_3\",\n      \"purpose\": \"Identify the top product in each quarter\",\n      \"sql\": \"SELECT name FROM step_2 LIMIT 1\"\n    },\n    {\n      \"id\": \"step_4\",\n      \"purpose\": \"Compare the top product between the first and second quarters\",\n      \"sql\": \"SELECT name FROM step_3 WHERE quarter = 'Q1' OR quarter = 'Q2'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": "SQLite strftime does not support %Q; use explicit date ranges."
+     }
+    ],
+    "sql": false,
+    "answer": false,
+    "report": false,
+    "e2e": false,
+    "seconds": 52.99,
+    "model_calls": 3
+   }
+  },
+  {
+   "set": "official",
+   "id": "q11",
+   "type": "combinada",
+   "question": "Cuantas unidades totales se vendieron en el semestre y cuantas de esas corresponden a la categoria Electronica?",
+   "expected": {
+    "total": 1655.0,
+    "subset": 488.0,
+    "share_pct": 29.48640483383686
+   },
+   "result": {
+    "question": "Cuantas unidades totales se vendieron en el semestre y cuantas de esas corresponden a la categoria Electronica?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total units sold in the semester",
+       "sql": "SELECT SUM(quantity) AS total_units_sold FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Calculate total units sold in the electronics category",
+       "sql": "SELECT SUM(quantity) AS total_units_sold FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND sale_date BETWEEN '2026-03-01' AND '2026-08-31'"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(quantity) AS total_units_sold FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'",
+      "rows": [
+       [
+        1655
+       ]
+      ]
+     },
+     {
+      "sql": "SELECT SUM(quantity) AS total_units_sold FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND sale_date BETWEEN '2026-03-01' AND '2026-08-31'",
+      "rows": [
+       [
+        488
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 488,
+     "details": {}
+    },
+    "report_text": "En el semestre, se vendieron un total de 488 unidades. De estas, 488 corresponden a la categoría Electrónica.",
+    "report_source": "model",
+    "raw_report": "En el semestre, se vendieron un total de 488 unidades. De estas, 488 corresponden a la categoría Electrónica.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total units sold in the semester\",\n      \"sql\": \"SELECT SUM(quantity) AS total_units_sold FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Calculate total units sold in the electronics category\",\n      \"sql\": \"SELECT SUM(quantity) AS total_units_sold FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND sale_date BETWEEN '2026-03-01' AND '2026-08-31'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": false,
+    "report": true,
+    "e2e": false,
+    "seconds": 17.66,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q12",
+   "type": "combinada",
+   "question": "El ingreso de agosto de 2026 fue mayor o menor que el de marzo de 2026, y en que porcentaje?",
+   "expected": {
+    "previous": 18508100.0,
+    "current": 29442750.0,
+    "growth_pct": 59.08034860412468,
+    "direction": "increase"
+   },
+   "result": {
+    "question": "El ingreso de agosto de 2026 fue mayor o menor que el de marzo de 2026, y en que porcentaje?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total sales for March 2026",
+       "sql": "SELECT SUM(amount) AS march_sales FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-03'"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Calculate total sales for August 2026",
+       "sql": "SELECT SUM(amount) AS august_sales FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08'"
+      }
+     ],
+     "operation": "growth_pct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(amount) AS march_sales FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-03'",
+      "rows": [
+       [
+        18508100
+       ]
+      ]
+     },
+     {
+      "sql": "SELECT SUM(amount) AS august_sales FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08'",
+      "rows": [
+       [
+        29442750
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "growth_pct",
+     "value": {
+      "previous": 18508100.0,
+      "current": 29442750.0,
+      "growth_pct": 59.08034860412468,
+      "direction": "increase"
+     },
+     "details": {}
+    },
+    "report_text": "El ingreso de agosto de 2026 fue mayor que el de marzo de 2026 en un porcentaje del 59.08%.",
+    "report_source": "model",
+    "raw_report": "El ingreso de agosto de 2026 fue mayor que el de marzo de 2026 en un porcentaje del 59.08%.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for March 2026\",\n      \"sql\": \"SELECT SUM(amount) AS march_sales FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-03'\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Calculate total sales for August 2026\",\n      \"sql\": \"SELECT SUM(amount) AS august_sales FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"growth_pct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 15.72,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q13",
+   "type": "puntual",
+   "question": "Cuantos productos distintos tiene la categoria Ropa?",
+   "expected": 2,
+   "result": {
+    "question": "Cuantos productos distintos tiene la categoria Ropa?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Count distinct products in the 'Ropa' category",
+       "sql": "SELECT COUNT(DISTINCT T1.product_id) FROM products AS T1 INNER JOIN inventory AS T2 ON T1.product_id = T2.product_id WHERE T1.category = 'Ropa'"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT COUNT(DISTINCT T1.product_id) FROM products AS T1 INNER JOIN inventory AS T2 ON T1.product_id = T2.product_id WHERE T1.category = 'Ropa'",
+      "rows": [
+       [
+        2
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 2,
+     "details": {}
+    },
+    "report_text": "En el paso 1, se contaron 2 productos distintos en la categoría Ropa.",
+    "report_source": "model",
+    "raw_report": "En el paso 1, se contaron 2 productos distintos en la categoría Ropa.",
+    "report_faithful": false,
+    "report_issues": [
+     "Unsupported figure in the report: 1."
+    ],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Count distinct products in the 'Ropa' category\",\n      \"sql\": \"SELECT COUNT(DISTINCT T1.product_id) FROM products AS T1 INNER JOIN inventory AS T2 ON T1.product_id = T2.product_id WHERE T1.category = 'Ropa'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": false,
+    "e2e": false,
+    "seconds": 10.73,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q14",
+   "type": "combinada",
+   "question": "De los productos con stock bajo el punto de reorden, cual es el que mas ingreso genero en el semestre?",
+   "expected": {
+    "winner": "Zapatillas Urbanas"
+   },
+   "result": {
+    "question": "De los productos con stock bajo el punto de reorden, cual es el que mas ingreso genero en el semestre?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Identify products with stock below the reorder point",
+       "sql": "SELECT p.name, i.stock FROM products p JOIN inventory i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Calculate total sales for each product",
+       "sql": "SELECT s.product_id, SUM(s.amount) AS total_sales FROM sales s GROUP BY s.product_id"
+      }
+     ],
+     "operation": "filter_then_rank"
+    },
+    "executions": [
+     {
+      "sql": "SELECT p.name, i.stock FROM products p JOIN inventory i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point",
+      "rows": [
+       [
+        "Lampara de Escritorio",
+        20
+       ],
+       [
+        "Polera Basica",
+        20
+       ],
+       [
+        "Zapatillas Urbanas",
+        16
+       ],
+       [
+        "Cafe Molido 500g",
+        9
+       ]
+      ]
+     },
+     {
+      "sql": "SELECT s.product_id, SUM(s.amount) AS total_sales FROM sales s GROUP BY s.product_id",
+      "rows": [
+       [
+        1,
+        4948350
+       ],
+       [
+        2,
+        91298340
+       ],
+       [
+        3,
+        1411430
+       ],
+       [
+        4,
+        4198320
+       ],
+       [
+        5,
+        12537910
+       ],
+       [
+        6,
+        1886820
+       ],
+       [
+        7,
+        1828170
+       ],
+       [
+        8,
+        6198450
+       ],
+       [
+        9,
+        1181310
+       ],
+       [
+        10,
+        1318350
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "filter_then_rank",
+     "value": {
+      "winner": "Zapatillas Urbanas"
+     },
+     "details": {
+      "filtered": [
+       "Cafe Molido 500g",
+       "Lampara de Escritorio",
+       "Polera Basica",
+       "Zapatillas Urbanas"
+      ],
+      "ranked": [
+       "Notebook 14 pulgadas",
+       "Set de Ollas",
+       "Zapatillas Urbanas",
+       "Audifonos Inalambricos",
+       "Juego de Sabanas",
+       "Lampara de Escritorio",
+       "Polera Basica",
+       "Mouse Optico",
+       "Aceite de Oliva 500ml",
+       "Cafe Molido 500g"
+      ]
+     }
+    },
+    "report_text": "En el semestre, las Zapatillas Urbanas fueron el producto con más ingresos generados entre los productos con stock bajo el punto de reorden.",
+    "report_source": "model",
+    "raw_report": "En el semestre, las Zapatillas Urbanas fueron el producto con más ingresos generados entre los productos con stock bajo el punto de reorden.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Identify products with stock below the reorder point\",\n      \"sql\": \"SELECT p.name, i.stock FROM products p JOIN inventory i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Calculate total sales for each product\",\n      \"sql\": \"SELECT s.product_id, SUM(s.amount) AS total_sales FROM sales s GROUP BY s.product_id\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"filter_then_rank\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": false,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 14.64,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "official",
+   "id": "q15",
+   "type": "puntual",
+   "question": "Cual es el ingreso total de la tienda en todo el semestre?",
+   "expected": 126807450,
+   "result": {
+    "question": "Cual es el ingreso total de la tienda en todo el semestre?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total sales for the entire semester",
+       "sql": "SELECT SUM(amount) AS total_sales FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(amount) AS total_sales FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'",
+      "rows": [
+       [
+        126807450
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 126807450,
+     "details": {}
+    },
+    "report_text": "El ingreso total de la tienda en todo el semestre fue de 126807450.",
+    "report_source": "model",
+    "raw_report": "El ingreso total de la tienda en todo el semestre fue de 126807450.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for the entire semester\",\n      \"sql\": \"SELECT SUM(amount) AS total_sales FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 10.74,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q09-p",
+   "type": "combinada",
+   "question": "¿Cuánto crecieron, en porcentaje, las ventas de junio a agosto respecto de marzo a mayo?",
+   "expected": {
+    "previous": 48748530.0,
+    "current": 78058920.0,
+    "growth_pct": 60.12568994388139,
+    "direction": "increase"
+   },
+   "result": {
+    "question": "¿Cuánto crecieron, en porcentaje, las ventas de junio a agosto respecto de marzo a mayo?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total sales for each month",
+       "sql": "SELECT strftime('%Y-%m', sale_date) AS month, SUM(quantity) AS total_sales FROM sales GROUP BY month"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT strftime('%Y-%m', sale_date) AS month, SUM(quantity) AS total_sales FROM sales GROUP BY month",
+      "rows": [
+       [
+        "2026-03",
+        190
+       ],
+       [
+        "2026-04",
+        204
+       ],
+       [
+        "2026-05",
+        253
+       ],
+       [
+        "2026-06",
+        346
+       ],
+       [
+        "2026-07",
+        337
+       ],
+       [
+        "2026-08",
+        325
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": [
+      [
+       "2026-03",
+       190
+      ],
+      [
+       "2026-04",
+       204
+      ],
+      [
+       "2026-05",
+       253
+      ],
+      [
+       "2026-06",
+       346
+      ],
+      [
+       "2026-07",
+       337
+      ],
+      [
+       "2026-08",
+       325
+      ]
+     ],
+     "details": {}
+    },
+    "report_text": "En junio, las ventas aumentaron un 26% respecto a marzo. En julio, el crecimiento fue de 10%, y en agosto, disminuyó un 12%.",
+    "report_source": "model",
+    "raw_report": "En junio, las ventas aumentaron un 26% respecto a marzo. En julio, el crecimiento fue de 10%, y en agosto, disminuyó un 12%.",
+    "report_faithful": false,
+    "report_issues": [
+     "The report does not state the verified answer [[\"2026-03\", 190], [\"2026-04\", 204], [\"2026-05\", 253], [\"2026-06\", 346], [\"2026-07\", 337], [\"2026-08\", 325]].",
+     "Unsupported figure in the report: 26%.",
+     "Unsupported figure in the report: 10%.",
+     "Unsupported figure in the report: 12%."
+    ],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for each month\",\n      \"sql\": \"SELECT strftime('%Y-%m', sale_date) AS month, SUM(quantity) AS total_sales FROM sales GROUP BY month\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": false,
+    "answer": false,
+    "report": false,
+    "e2e": false,
+    "seconds": 11.31,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q10-p",
+   "type": "combinada",
+   "question": "¿Qué producto generó más ingresos entre marzo y mayo, y cuál entre junio y agosto? ¿Es el mismo?",
+   "expected": {
+    "first": "Notebook 14 pulgadas",
+    "second": "Notebook 14 pulgadas",
+    "changed": false
+   },
+   "result": {
+    "question": "¿Qué producto generó más ingresos entre marzo y mayo, y cuál entre junio y agosto? ¿Es el mismo?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total sales for each product between March and May",
+       "sql": "SELECT p.name, SUM(s.amount) AS total_sales FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2026-03-01' AND '2026-05-31' GROUP BY p.name ORDER BY total_sales DESC LIMIT 1"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Calculate total sales for each product between June and August",
+       "sql": "SELECT p.name, SUM(s.amount) AS total_sales FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2026-06-01' AND '2026-08-31' GROUP BY p.name ORDER BY total_sales DESC LIMIT 1"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT p.name, SUM(s.amount) AS total_sales FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2026-03-01' AND '2026-05-31' GROUP BY p.name ORDER BY total_sales DESC LIMIT 1",
+      "rows": [
+       [
+        "Notebook 14 pulgadas",
+        35199360
+       ]
+      ]
+     },
+     {
+      "sql": "SELECT p.name, SUM(s.amount) AS total_sales FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2026-06-01' AND '2026-08-31' GROUP BY p.name ORDER BY total_sales DESC LIMIT 1",
+      "rows": [
+       [
+        "Notebook 14 pulgadas",
+        56098980
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": [
+      [
+       "Notebook 14 pulgadas",
+       56098980
+      ]
+     ],
+     "details": {}
+    },
+    "report_text": "Between March and May, Notebook 14 pulgadas generated more sales than any other product. Between June and August, Notebook 14 pulgadas also generated more sales than any other product. The sales figures were 35199360 and 56098980 respectively.",
+    "report_source": "model",
+    "raw_report": "Between March and May, Notebook 14 pulgadas generated more sales than any other product. Between June and August, Notebook 14 pulgadas also generated more sales than any other product. The sales figures were 35199360 and 56098980 respectively.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for each product between March and May\",\n      \"sql\": \"SELECT p.name, SUM(s.amount) AS total_sales FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2026-03-01' AND '2026-05-31' GROUP BY p.name ORDER BY total_sales DESC LIMIT 1\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Calculate total sales for each product between June and August\",\n      \"sql\": \"SELECT p.name, SUM(s.amount) AS total_sales FROM products p JOIN sales s ON p.product_id = s.product_id WHERE s.sale_date BETWEEN '2026-06-01' AND '2026-08-31' GROUP BY p.name ORDER BY total_sales DESC LIMIT 1\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": false,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 23.21,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q11-p",
+   "type": "combinada",
+   "question": "¿Qué porcentaje de las unidades vendidas en el semestre corresponde a la categoría Electronica?",
+   "expected": {
+    "total": 1655.0,
+    "subset": 488.0,
+    "share_pct": 29.48640483383686
+   },
+   "result": {
+    "question": "¿Qué porcentaje de las unidades vendidas en el semestre corresponde a la categoría Electronica?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate the total units sold in the specified period",
+       "sql": "SELECT SUM(quantity) AS total_units_sold FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Calculate the total units sold in the Electronics category",
+       "sql": "SELECT SUM(quantity) AS electronics_units_sold FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND sale_date BETWEEN '2026-03-01' AND '2026-08-31'"
+      }
+     ],
+     "operation": "share_pct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(quantity) AS total_units_sold FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'",
+      "rows": [
+       [
+        1655
+       ]
+      ]
+     },
+     {
+      "sql": "SELECT SUM(quantity) AS electronics_units_sold FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND sale_date BETWEEN '2026-03-01' AND '2026-08-31'",
+      "rows": [
+       [
+        488
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "share_pct",
+     "value": {
+      "total": 1655.0,
+      "subset": 488.0,
+      "share_pct": 29.48640483383686
+     },
+     "details": {}
+    },
+    "report_text": "En el semestre, el 29.49% de las unidades vendidas corresponden a la categoría Electrónica.",
+    "report_source": "model",
+    "raw_report": "En el semestre, el 29.49% de las unidades vendidas corresponden a la categoría Electrónica.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate the total units sold in the specified period\",\n      \"sql\": \"SELECT SUM(quantity) AS total_units_sold FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Calculate the total units sold in the Electronics category\",\n      \"sql\": \"SELECT SUM(quantity) AS electronics_units_sold FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND sale_date BETWEEN '2026-03-01' AND '2026-08-31'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"share_pct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 17.62,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q12-p",
+   "type": "combinada",
+   "question": "¿Cuánto varió el ingreso entre marzo de 2026 y agosto de 2026, en términos porcentuales?",
+   "expected": {
+    "previous": 18508100.0,
+    "current": 29442750.0,
+    "growth_pct": 59.08034860412468,
+    "direction": "increase"
+   },
+   "result": {
+    "question": "¿Cuánto varió el ingreso entre marzo de 2026 y agosto de 2026, en términos porcentuales?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total sales for March 2026",
+       "sql": "SELECT SUM(amount) AS total_sales_march FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-03'"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Calculate total sales for August 2026",
+       "sql": "SELECT SUM(amount) AS total_sales_august FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08'"
+      }
+     ],
+     "operation": "growth_pct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(amount) AS total_sales_march FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-03'",
+      "rows": [
+       [
+        18508100
+       ]
+      ]
+     },
+     {
+      "sql": "SELECT SUM(amount) AS total_sales_august FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08'",
+      "rows": [
+       [
+        29442750
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "growth_pct",
+     "value": {
+      "previous": 18508100.0,
+      "current": 29442750.0,
+      "growth_pct": 59.08034860412468,
+      "direction": "increase"
+     },
+     "details": {}
+    },
+    "report_text": "El ingreso aumentó un 59.08% entre marzo y agosto de 2026.",
+    "report_source": "model",
+    "raw_report": "El ingreso aumentó un 59.08% entre marzo y agosto de 2026.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for March 2026\",\n      \"sql\": \"SELECT SUM(amount) AS total_sales_march FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-03'\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Calculate total sales for August 2026\",\n      \"sql\": \"SELECT SUM(amount) AS total_sales_august FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"growth_pct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 15.08,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q14-p",
+   "type": "combinada",
+   "question": "Entre los productos que están bajo su punto de reorden, ¿cuál vendió más en pesos durante el semestre?",
+   "expected": {
+    "winner": "Zapatillas Urbanas"
+   },
+   "result": {
+    "question": "Entre los productos que están bajo su punto de reorden, ¿cuál vendió más en pesos durante el semestre?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Identify products under reorder point",
+       "sql": "SELECT product_id FROM inventory WHERE stock < reorder_point"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Calculate total sales for products under reorder point",
+       "sql": "SELECT SUM(amount) AS total_sales FROM sales WHERE product_id IN (SELECT product_id FROM step_1)"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT product_id FROM inventory WHERE stock < reorder_point",
+      "rows": [
+       [
+        6
+       ],
+       [
+        7
+       ],
+       [
+        8
+       ],
+       [
+        9
+       ]
+      ]
+     },
+     {
+      "sql": "WITH step_1 AS (SELECT product_id FROM inventory WHERE stock < reorder_point) SELECT SUM(amount) AS total_sales FROM sales WHERE product_id IN (SELECT product_id FROM step_1)",
+      "rows": [
+       [
+        11094750
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 11094750,
+     "details": {}
+    },
+    "report_text": "En el semestre, el producto con el mayor número de ventas fue el producto con ID 9, que vendió un total de 11094750 pesos.",
+    "report_source": "model",
+    "raw_report": "En el semestre, el producto con el mayor número de ventas fue el producto con ID 9, que vendió un total de 11094750 pesos.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Identify products under reorder point\",\n      \"sql\": \"SELECT product_id FROM inventory WHERE stock < reorder_point\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Calculate total sales for products under reorder point\",\n      \"sql\": \"SELECT SUM(amount) AS total_sales FROM sales WHERE product_id IN (SELECT product_id FROM step_1)\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": false,
+    "answer": false,
+    "report": true,
+    "e2e": false,
+    "seconds": 13.46,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q12-en",
+   "type": "combinada",
+   "question": "Was August 2026 revenue higher or lower than March 2026 revenue, and by what percent?",
+   "expected": {
+    "previous": 18508100.0,
+    "current": 29442750.0,
+    "growth_pct": 59.08034860412468,
+    "direction": "increase"
+   },
+   "result": {
+    "question": "Was August 2026 revenue higher or lower than March 2026 revenue, and by what percent?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total revenue for March 2026",
+       "sql": "SELECT SUM(amount) AS march_revenue FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-03'"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Calculate total revenue for August 2026",
+       "sql": "SELECT SUM(amount) AS august_revenue FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08'"
+      }
+     ],
+     "operation": "growth_pct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(amount) AS march_revenue FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-03'",
+      "rows": [
+       [
+        18508100
+       ]
+      ]
+     },
+     {
+      "sql": "SELECT SUM(amount) AS august_revenue FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08'",
+      "rows": [
+       [
+        29442750
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "growth_pct",
+     "value": {
+      "previous": 18508100.0,
+      "current": 29442750.0,
+      "growth_pct": 59.08034860412468,
+      "direction": "increase"
+     },
+     "details": {}
+    },
+    "report_text": "August 2026 revenue was higher than March 2026 revenue by 59.08%.",
+    "report_source": "model",
+    "raw_report": "August 2026 revenue was higher than March 2026 revenue by 59.08%.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total revenue for March 2026\",\n      \"sql\": \"SELECT SUM(amount) AS march_revenue FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-03'\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Calculate total revenue for August 2026\",\n      \"sql\": \"SELECT SUM(amount) AS august_revenue FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"growth_pct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 15.31,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q14-en",
+   "type": "combinada",
+   "question": "Among products whose stock is below the reorder point, which one generated the most revenue in the semester?",
+   "expected": {
+    "winner": "Zapatillas Urbanas"
+   },
+   "result": {
+    "question": "Among products whose stock is below the reorder point, which one generated the most revenue in the semester?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Identify products with stock below reorder point",
+       "sql": "SELECT p.name FROM products AS p JOIN inventory AS i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Calculate total revenue for each product",
+       "sql": "SELECT p.name, SUM(s.amount) AS total_revenue FROM products AS p JOIN sales AS s ON p.product_id = s.product_id WHERE p.name IN (SELECT name FROM step_1) GROUP BY p.name ORDER BY total_revenue DESC LIMIT 1"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT p.name FROM products AS p JOIN inventory AS i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point",
+      "rows": [
+       [
+        "Lampara de Escritorio"
+       ],
+       [
+        "Polera Basica"
+       ],
+       [
+        "Zapatillas Urbanas"
+       ],
+       [
+        "Cafe Molido 500g"
+       ]
+      ]
+     },
+     {
+      "sql": "WITH step_1 AS (SELECT p.name FROM products AS p JOIN inventory AS i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point) SELECT p.name, SUM(s.amount) AS total_revenue FROM products AS p JOIN sales AS s ON p.product_id = s.product_id WHERE p.name IN (SELECT name FROM step_1) GROUP BY p.name ORDER BY total_revenue DESC LIMIT 1",
+      "rows": [
+       [
+        "Zapatillas Urbanas",
+        6198450
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": [
+      [
+       "Zapatillas Urbanas",
+       6198450
+      ]
+     ],
+     "details": {}
+    },
+    "report_text": "Among products whose stock was below the reorder point during the semester, Zapatillas Urbanas generated the most revenue, totaling 6198450.",
+    "report_source": "model",
+    "raw_report": "Among products whose stock was below the reorder point during the semester, Zapatillas Urbanas generated the most revenue, totaling 6198450.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Identify products with stock below reorder point\",\n      \"sql\": \"SELECT p.name FROM products AS p JOIN inventory AS i ON p.product_id = i.product_id WHERE i.stock < i.reorder_point\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Calculate total revenue for each product\",\n      \"sql\": \"SELECT p.name, SUM(s.amount) AS total_revenue FROM products AS p JOIN sales AS s ON p.product_id = s.product_id WHERE p.name IN (SELECT name FROM step_1) GROUP BY p.name ORDER BY total_revenue DESC LIMIT 1\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": false,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 16.52,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q02-p",
+   "type": "puntual",
+   "question": "¿Cuánto facturó en total la categoría Electronica entre marzo y agosto de 2026?",
+   "expected": 97658120,
+   "result": {
+    "question": "¿Cuánto facturó en total la categoría Electronica entre marzo y agosto de 2026?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total sales for the Electronics category between March and August 2026",
+       "sql": "SELECT SUM(amount) AS total_sales FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND strftime('%Y-%m', sale_date) BETWEEN '2026-03' AND '2026-08'"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(amount) AS total_sales FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND strftime('%Y-%m', sale_date) BETWEEN '2026-03' AND '2026-08'",
+      "rows": [
+       [
+        97658120
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 97658120,
+     "details": {}
+    },
+    "report_text": "El total facturado en la categoría Electrónica entre marzo y agosto de 2026 fue 97658120.",
+    "report_source": "model",
+    "raw_report": "El total facturado en la categoría Electrónica entre marzo y agosto de 2026 fue 97658120.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales for the Electronics category between March and August 2026\",\n      \"sql\": \"SELECT SUM(amount) AS total_sales FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Electronica' AND strftime('%Y-%m', sale_date) BETWEEN '2026-03' AND '2026-08'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 13.09,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q04-p",
+   "type": "puntual",
+   "question": "¿Cuántas unidades de productos de la categoría Alimentos se vendieron en agosto de 2026?",
+   "expected": 63,
+   "result": {
+    "question": "¿Cuántas unidades de productos de la categoría Alimentos se vendieron en agosto de 2026?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Find the total units sold for Alimentos category in August 2026",
+       "sql": "SELECT SUM(quantity) AS total_units_sold FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08' AND product_id IN (SELECT product_id FROM products WHERE category = 'Alimentos')"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(quantity) AS total_units_sold FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08' AND product_id IN (SELECT product_id FROM products WHERE category = 'Alimentos')",
+      "rows": [
+       [
+        63
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 63,
+     "details": {}
+    },
+    "report_text": "En agosto de 2026, se vendieron 63 unidades de productos de la categoría Alimentos.",
+    "report_source": "model",
+    "raw_report": "En agosto de 2026, se vendieron 63 unidades de productos de la categoría Alimentos.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Find the total units sold for Alimentos category in August 2026\",\n      \"sql\": \"SELECT SUM(quantity) AS total_units_sold FROM sales WHERE strftime('%Y-%m', sale_date) = '2026-08' AND product_id IN (SELECT product_id FROM products WHERE category = 'Alimentos')\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 11.9,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q07-p",
+   "type": "puntual",
+   "question": "¿Cuántas transacciones de venta tuvo la Polera Basica durante todo el periodo?",
+   "expected": 56,
+   "result": {
+    "question": "¿Cuántas transacciones de venta tuvo la Polera Basica durante todo el periodo?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Find the product ID for 'Polera Basica'",
+       "sql": "SELECT product_id FROM products WHERE name = 'Polera Basica'"
+      },
+      {
+       "id": "step_2",
+       "purpose": "Count the number of sales for the product during the specified period",
+       "sql": "SELECT COUNT(*) FROM sales WHERE product_id = (SELECT product_id FROM step_1) AND sale_date BETWEEN '2026-03-01' AND '2026-08-31'"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT product_id FROM products WHERE name = 'Polera Basica'",
+      "rows": [
+       [
+        7
+       ]
+      ]
+     },
+     {
+      "sql": "WITH step_1 AS (SELECT product_id FROM products WHERE name = 'Polera Basica') SELECT COUNT(*) FROM sales WHERE product_id = (SELECT product_id FROM step_1) AND sale_date BETWEEN '2026-03-01' AND '2026-08-31'",
+      "rows": [
+       [
+        56
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 56,
+     "details": {}
+    },
+    "report_text": "La Polera Basica tuvo 56 transacciones de venta durante todo el período.",
+    "report_source": "model",
+    "raw_report": "La Polera Basica tuvo 56 transacciones de venta durante todo el período.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Find the product ID for 'Polera Basica'\",\n      \"sql\": \"SELECT product_id FROM products WHERE name = 'Polera Basica'\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"Count the number of sales for the product during the specified period\",\n      \"sql\": \"SELECT COUNT(*) FROM sales WHERE product_id = (SELECT product_id FROM step_1) AND sale_date BETWEEN '2026-03-01' AND '2026-08-31'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 14.54,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q08-p",
+   "type": "puntual",
+   "question": "¿Cuál es el monto promedio de cada venta de productos de la categoría Hogar?",
+   "expected": 108273.54651162791,
+   "result": {
+    "question": "¿Cuál es el monto promedio de cada venta de productos de la categoría Hogar?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate the average sale amount for products in the 'Hogar' category",
+       "sql": "SELECT AVG(amount) AS average_sale_amount FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Hogar'"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT AVG(amount) AS average_sale_amount FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Hogar'",
+      "rows": [
+       [
+        108273.54651162791
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 108273.54651162791,
+     "details": {}
+    },
+    "report_text": "El monto promedio de cada venta de productos de la categoría Hogar es de 108273.55.",
+    "report_source": "model",
+    "raw_report": "El monto promedio de cada venta de productos de la categoría Hogar es de 108273.55.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate the average sale amount for products in the 'Hogar' category\",\n      \"sql\": \"SELECT AVG(amount) AS average_sale_amount FROM sales JOIN products ON sales.product_id = products.product_id WHERE products.category = 'Hogar'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 10.76,
+    "model_calls": 2
+   }
+  },
+  {
+   "set": "heldout",
+   "id": "q15-p",
+   "type": "puntual",
+   "question": "¿Cuánto vendió la tienda en total, en pesos, entre marzo y agosto de 2026?",
+   "expected": 126807450,
+   "result": {
+    "question": "¿Cuánto vendió la tienda en total, en pesos, entre marzo y agosto de 2026?",
+    "plan": {
+     "steps": [
+      {
+       "id": "step_1",
+       "purpose": "Calculate total sales amount between March and August 2026",
+       "sql": "SELECT SUM(amount) AS total_sales FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'"
+      }
+     ],
+     "operation": "direct"
+    },
+    "executions": [
+     {
+      "sql": "SELECT SUM(amount) AS total_sales FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'",
+      "rows": [
+       [
+        126807450
+       ]
+      ]
+     }
+    ],
+    "composed": {
+     "operation": "direct",
+     "value": 126807450,
+     "details": {}
+    },
+    "report_text": "La tienda vendió un total de 126807450 pesos entre marzo y agosto de 2026.",
+    "report_source": "model",
+    "raw_report": "La tienda vendió un total de 126807450 pesos entre marzo y agosto de 2026.",
+    "report_faithful": true,
+    "report_issues": [],
+    "attempts": [
+     {
+      "raw_plan": "```json\n{\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"Calculate total sales amount between March and August 2026\",\n      \"sql\": \"SELECT SUM(amount) AS total_sales FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-08-31'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"direct\"\n  }\n}\n```",
+      "error": null
+     }
+    ],
+    "sql": true,
+    "answer": true,
+    "report": true,
+    "e2e": true,
+    "seconds": 11.43,
+    "model_calls": 2
+   }
+  }
+ ],
+ "meta": {
+  "python": "3.13.16",
+  "torch": "2.11.0+cu130",
+  "transformers": "5.17.0",
+  "accelerate": "1.15.0",
+  "bitsandbytes": "0.50.2",
+  "gpu": "Tesla T4",
+  "commit": "351d43562dfd6389e47f79e3b57ae45782ae76e3",
+  "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+  "model_revision": "488639f1ff808d1d3d0ba301aef8c11461451ec5",
+  "settings": {
+   "max_new_tokens": 384,
+   "load_in_4bit": true
+  },
+  "limit": 0,
+  "seconds": 419.5
+ }
+}

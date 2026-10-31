@@ -41,6 +41,10 @@ class FidelityTests(unittest.TestCase):
         self.assertUnfaithful("The leader changed: Notebook 14 pulgadas led Q1 and Notebook 14 pulgadas led Q2.", gold("q10"))
         self.assertUnfaithful("August 2026 revenue was higher than March 2026 revenue by 34.7%.", gold("q12"))
         self.assertUnfaithful('Verified result: "Notebook 14 pulgadas"', 34)
+        # Deliverable 3 demo (q09-p): one change reported as if each period had grown by it.
+        self.assertUnfaithful(
+            "Las ventas aumentaron un 60.13% entre marzo y mayo y un 60.13% entre junio y agosto.", gold("q09")
+        )
 
     def test_figures_from_the_question_or_the_sql_are_allowed(self):
         evidence = "¿Cuántas unidades se vendieron en junio de 2026? SELECT ... BETWEEN '2026-06-01' AND '2026-06-30'"

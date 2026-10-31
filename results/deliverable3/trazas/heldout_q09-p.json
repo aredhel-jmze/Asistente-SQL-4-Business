@@ -1,0 +1,378 @@
+{
+  "question": "¿Cuánto crecieron, en porcentaje, las ventas de junio a agosto respecto de marzo a mayo?",
+  "plan": {
+    "steps": [
+      {
+        "id": "step_1",
+        "purpose": "total sales in March-May",
+        "sql": "SELECT SUM(amount) AS total_may FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-05-31'"
+      },
+      {
+        "id": "step_2",
+        "purpose": "total sales in June-August",
+        "sql": "SELECT SUM(amount) AS total_august FROM sales WHERE sale_date BETWEEN '2026-06-01' AND '2026-08-31'"
+      }
+    ],
+    "operation": "growth_pct",
+    "answer_needs": "two totals and their percentage change",
+    "periods": [
+      {
+        "label": "marzo a mayo",
+        "from": "2026-03-01",
+        "to": "2026-05-31"
+      },
+      {
+        "label": "junio a agosto",
+        "from": "2026-06-01",
+        "to": "2026-08-31"
+      }
+    ]
+  },
+  "executions": [
+    {
+      "sql": "SELECT SUM(amount) AS total_may FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-05-31'",
+      "rows": [
+        [
+          48748530
+        ]
+      ]
+    },
+    {
+      "sql": "SELECT SUM(amount) AS total_august FROM sales WHERE sale_date BETWEEN '2026-06-01' AND '2026-08-31'",
+      "rows": [
+        [
+          78058920
+        ]
+      ]
+    }
+  ],
+  "composed": {
+    "operation": "growth_pct",
+    "value": {
+      "previous": 48748530.0,
+      "current": 78058920.0,
+      "growth_pct": 60.12568994388139,
+      "direction": "increase"
+    },
+    "details": {}
+  },
+  "report_text": "Las ventas aumentaron un 60.13% entre marzo y mayo y hasta agosto.",
+  "report_source": "model",
+  "report_faithful": true,
+  "report_issues": [],
+  "status": "aceptado",
+  "model_calls": 3,
+  "model_calls_by_agent": {
+    "Planificador": 1,
+    "Analista SQL": 0,
+    "Reportero": 1,
+    "Verificador": 1
+  },
+  "trace": [
+    {
+      "n": 1,
+      "de": "Usuario",
+      "para": "Planificador",
+      "tipo": "pregunta",
+      "contenido": "¿Cuánto crecieron, en porcentaje, las ventas de junio a agosto respecto de marzo a mayo?"
+    },
+    {
+      "n": 2,
+      "de": "Planificador",
+      "para": "herramienta:leer_esquema",
+      "tipo": "llamada",
+      "contenido": {}
+    },
+    {
+      "n": 3,
+      "de": "herramienta:leer_esquema",
+      "para": "Planificador",
+      "tipo": "resultado",
+      "contenido": "7 líneas de esquema enriquecido"
+    },
+    {
+      "n": 4,
+      "de": "Planificador",
+      "para": "Analista SQL",
+      "tipo": "plan",
+      "contenido": {
+        "steps": [
+          {
+            "id": "step_1",
+            "purpose": "total sales in March-May",
+            "sql": "SELECT SUM(amount) AS total_may FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-05-31'"
+          },
+          {
+            "id": "step_2",
+            "purpose": "total sales in June-August",
+            "sql": "SELECT SUM(amount) AS total_august FROM sales WHERE sale_date BETWEEN '2026-06-01' AND '2026-08-31'"
+          }
+        ],
+        "operation": "growth_pct",
+        "answer_needs": "two totals and their percentage change",
+        "periods": [
+          {
+            "label": "marzo a mayo",
+            "from": "2026-03-01",
+            "to": "2026-05-31"
+          },
+          {
+            "label": "junio a agosto",
+            "from": "2026-06-01",
+            "to": "2026-08-31"
+          }
+        ]
+      },
+      "salida_modelo": "```json\n{\n  \"answer_needs\": \"two totals and their percentage change\",\n  \"periods\": [\n    {\"label\": \"marzo a mayo\", \"from\": \"2026-03-01\", \"to\": \"2026-05-31\"},\n    {\"label\": \"junio a agosto\", \"from\": \"2026-06-01\", \"to\": \"2026-08-31\"}\n  ],\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"total sales in March-May\",\n      \"sql\": \"SELECT SUM(amount) AS total_may FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-05-31'\"\n    },\n    {\n      \"id\": \"step_2\",\n      \"purpose\": \"total sales in June-August\",\n      \"sql\": \"SELECT SUM(amount) AS total_august FROM sales WHERE sale_date BETWEEN '2026-06-01' AND '2026-08-31'\"\n    }\n  ],\n  \"composition\": {\n    \"operation\": \"growth_pct\"\n  }\n}\n```"
+    },
+    {
+      "n": 5,
+      "de": "Analista SQL",
+      "para": "herramienta:revisar_sql",
+      "tipo": "llamada",
+      "contenido": {
+        "step": "step_1",
+        "sql": "SELECT SUM(amount) AS total_may FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-05-31'"
+      }
+    },
+    {
+      "n": 6,
+      "de": "herramienta:revisar_sql",
+      "para": "Analista SQL",
+      "tipo": "resultado",
+      "contenido": "sin problemas"
+    },
+    {
+      "n": 7,
+      "de": "Analista SQL",
+      "para": "herramienta:ejecutar_sql",
+      "tipo": "llamada",
+      "contenido": {
+        "step": "step_1",
+        "sql": "SELECT SUM(amount) AS total_may FROM sales WHERE sale_date BETWEEN '2026-03-01' AND '2026-05-31'"
+      }
+    },
+    {
+      "n": 8,
+      "de": "herramienta:ejecutar_sql",
+      "para": "Analista SQL",
+      "tipo": "resultado",
+      "contenido": {
+        "rows": [
+          [
+            48748530
+          ]
+        ],
+        "row_count": 1
+      }
+    },
+    {
+      "n": 9,
+      "de": "Analista SQL",
+      "para": "herramienta:revisar_sql",
+      "tipo": "llamada",
+      "contenido": {
+        "step": "step_2",
+        "sql": "SELECT SUM(amount) AS total_august FROM sales WHERE sale_date BETWEEN '2026-06-01' AND '2026-08-31'"
+      }
+    },
+    {
+      "n": 10,
+      "de": "herramienta:revisar_sql",
+      "para": "Analista SQL",
+      "tipo": "resultado",
+      "contenido": "sin problemas"
+    },
+    {
+      "n": 11,
+      "de": "Analista SQL",
+      "para": "herramienta:ejecutar_sql",
+      "tipo": "llamada",
+      "contenido": {
+        "step": "step_2",
+        "sql": "SELECT SUM(amount) AS total_august FROM sales WHERE sale_date BETWEEN '2026-06-01' AND '2026-08-31'"
+      }
+    },
+    {
+      "n": 12,
+      "de": "herramienta:ejecutar_sql",
+      "para": "Analista SQL",
+      "tipo": "resultado",
+      "contenido": {
+        "rows": [
+          [
+            78058920
+          ]
+        ],
+        "row_count": 1
+      }
+    },
+    {
+      "n": 13,
+      "de": "Analista SQL",
+      "para": "herramienta:componer",
+      "tipo": "llamada",
+      "contenido": {
+        "operation": "growth_pct"
+      }
+    },
+    {
+      "n": 14,
+      "de": "herramienta:componer",
+      "para": "Analista SQL",
+      "tipo": "resultado",
+      "contenido": {
+        "previous": 48748530.0,
+        "current": 78058920.0,
+        "growth_pct": 60.12568994388139,
+        "direction": "increase"
+      }
+    },
+    {
+      "n": 15,
+      "de": "Analista SQL",
+      "para": "Reportero",
+      "tipo": "resultado verificado",
+      "contenido": {
+        "operation": "growth_pct",
+        "value": {
+          "previous": 48748530.0,
+          "current": 78058920.0,
+          "growth_pct": 60.12568994388139,
+          "direction": "increase"
+        },
+        "steps": [
+          {
+            "id": "step_1",
+            "rows": [
+              [
+                48748530
+              ]
+            ]
+          },
+          {
+            "id": "step_2",
+            "rows": [
+              [
+                78058920
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "n": 16,
+      "de": "Reportero",
+      "para": "Verificador",
+      "tipo": "reporte",
+      "contenido": "Las ventas aumentaron un 60.13% entre marzo y mayo y hasta agosto.",
+      "salida_modelo": "Las ventas aumentaron un 60.13% entre marzo y mayo y hasta agosto."
+    },
+    {
+      "n": 17,
+      "de": "Verificador",
+      "para": "Verificador",
+      "tipo": "lista de chequeo de la pregunta",
+      "contenido": {
+        "asks_for": "percent_change",
+        "periods": [
+          {
+            "from": "2026-03-01",
+            "to": "2026-05-31"
+          },
+          {
+            "from": "2026-06-01",
+            "to": "2026-08-31"
+          }
+        ]
+      },
+      "salida_modelo": "```json\n{\n  \"asks_for\": \"percent_change\",\n  \"periods\": [\n    {\"from\": \"2026-03-01\", \"to\": \"2026-05-31\"},\n    {\"from\": \"2026-06-01\", \"to\": \"2026-08-31\"}\n  ]\n}\n```"
+    },
+    {
+      "n": 18,
+      "de": "Verificador",
+      "para": "herramienta:forma_resultado",
+      "tipo": "llamada",
+      "contenido": {
+        "operation": "growth_pct"
+      }
+    },
+    {
+      "n": 19,
+      "de": "herramienta:forma_resultado",
+      "para": "Verificador",
+      "tipo": "resultado",
+      "contenido": [
+        "percent_change"
+      ]
+    },
+    {
+      "n": 20,
+      "de": "Verificador",
+      "para": "herramienta:revisar_periodos",
+      "tipo": "llamada",
+      "contenido": {
+        "periods": [
+          {
+            "from": "2026-03-01",
+            "to": "2026-05-31"
+          },
+          {
+            "from": "2026-06-01",
+            "to": "2026-08-31"
+          }
+        ]
+      }
+    },
+    {
+      "n": 21,
+      "de": "herramienta:revisar_periodos",
+      "para": "Verificador",
+      "tipo": "resultado",
+      "contenido": "todos cubiertos"
+    },
+    {
+      "n": 22,
+      "de": "Verificador",
+      "para": "herramienta:revisar_filtros",
+      "tipo": "llamada",
+      "contenido": {
+        "question": "¿Cuánto crecieron, en porcentaje, las ventas de junio a agosto respecto de marzo a mayo?"
+      }
+    },
+    {
+      "n": 23,
+      "de": "herramienta:revisar_filtros",
+      "para": "Verificador",
+      "tipo": "resultado",
+      "contenido": "sin filtros faltantes"
+    },
+    {
+      "n": 24,
+      "de": "Verificador",
+      "para": "herramienta:verificar_fidelidad",
+      "tipo": "llamada",
+      "contenido": {
+        "report": "Las ventas aumentaron un 60.13% entre marzo y mayo y hasta agosto."
+      }
+    },
+    {
+      "n": 25,
+      "de": "herramienta:verificar_fidelidad",
+      "para": "Verificador",
+      "tipo": "resultado",
+      "contenido": "fiel"
+    },
+    {
+      "n": 26,
+      "de": "Verificador",
+      "para": "Usuario",
+      "tipo": "respuesta final",
+      "contenido": {
+        "report": "Las ventas aumentaron un 60.13% entre marzo y mayo y hasta agosto.",
+        "faithful": true
+      }
+    }
+  ]
+}

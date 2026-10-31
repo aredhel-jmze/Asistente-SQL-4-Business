@@ -1,0 +1,279 @@
+{
+  "question": "Cual es el ingreso promedio por venta en la categoria Hogar?",
+  "plan": {
+    "steps": [
+      {
+        "id": "step_1",
+        "purpose": "average revenue per sale in the 'Hogar' category",
+        "sql": "SELECT AVG(s.amount) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Hogar'"
+      }
+    ],
+    "operation": "direct",
+    "answer_needs": "average revenue per sale in the 'Hogar' category",
+    "periods": [
+      {
+        "label": "entire year 2026",
+        "from": "2026-01-01",
+        "to": "2026-12-31"
+      }
+    ]
+  },
+  "executions": [
+    {
+      "sql": "SELECT AVG(s.amount) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Hogar'",
+      "rows": [
+        [
+          108273.54651162791
+        ]
+      ]
+    }
+  ],
+  "composed": {
+    "operation": "direct",
+    "value": 108273.54651162791,
+    "details": {}
+  },
+  "report_text": "El ingreso promedio por venta en la categoría Hogar es 108273.55.",
+  "report_source": "model",
+  "report_faithful": true,
+  "report_issues": [],
+  "status": "aceptado",
+  "model_calls": 3,
+  "model_calls_by_agent": {
+    "Planificador": 1,
+    "Analista SQL": 0,
+    "Reportero": 1,
+    "Verificador": 1
+  },
+  "trace": [
+    {
+      "n": 1,
+      "de": "Usuario",
+      "para": "Planificador",
+      "tipo": "pregunta",
+      "contenido": "Cual es el ingreso promedio por venta en la categoria Hogar?"
+    },
+    {
+      "n": 2,
+      "de": "Planificador",
+      "para": "herramienta:leer_esquema",
+      "tipo": "llamada",
+      "contenido": {}
+    },
+    {
+      "n": 3,
+      "de": "herramienta:leer_esquema",
+      "para": "Planificador",
+      "tipo": "resultado",
+      "contenido": "7 líneas de esquema enriquecido"
+    },
+    {
+      "n": 4,
+      "de": "Planificador",
+      "para": "Analista SQL",
+      "tipo": "plan",
+      "contenido": {
+        "steps": [
+          {
+            "id": "step_1",
+            "purpose": "average revenue per sale in the 'Hogar' category",
+            "sql": "SELECT AVG(s.amount) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Hogar'"
+          }
+        ],
+        "operation": "direct",
+        "answer_needs": "average revenue per sale in the 'Hogar' category",
+        "periods": [
+          {
+            "label": "entire year 2026",
+            "from": "2026-01-01",
+            "to": "2026-12-31"
+          }
+        ]
+      },
+      "salida_modelo": "```json\n{\n  \"answer_needs\": \"average revenue per sale in the 'Hogar' category\",\n  \"periods\": [{\"label\": \"entire year 2026\", \"from\": \"2026-01-01\", \"to\": \"2026-12-31\"}],\n  \"steps\": [\n    {\n      \"id\": \"step_1\",\n      \"purpose\": \"average revenue per sale in the 'Hogar' category\",\n      \"sql\": \"SELECT AVG(s.amount) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Hogar'\"\n    }\n  ],\n  \"composition\": {\"operation\": \"direct\"}\n}\n```"
+    },
+    {
+      "n": 5,
+      "de": "Analista SQL",
+      "para": "herramienta:revisar_sql",
+      "tipo": "llamada",
+      "contenido": {
+        "step": "step_1",
+        "sql": "SELECT AVG(s.amount) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Hogar'"
+      }
+    },
+    {
+      "n": 6,
+      "de": "herramienta:revisar_sql",
+      "para": "Analista SQL",
+      "tipo": "resultado",
+      "contenido": "sin problemas"
+    },
+    {
+      "n": 7,
+      "de": "Analista SQL",
+      "para": "herramienta:ejecutar_sql",
+      "tipo": "llamada",
+      "contenido": {
+        "step": "step_1",
+        "sql": "SELECT AVG(s.amount) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Hogar'"
+      }
+    },
+    {
+      "n": 8,
+      "de": "herramienta:ejecutar_sql",
+      "para": "Analista SQL",
+      "tipo": "resultado",
+      "contenido": {
+        "rows": [
+          [
+            108273.54651162791
+          ]
+        ],
+        "row_count": 1
+      }
+    },
+    {
+      "n": 9,
+      "de": "Analista SQL",
+      "para": "herramienta:componer",
+      "tipo": "llamada",
+      "contenido": {
+        "operation": "direct"
+      }
+    },
+    {
+      "n": 10,
+      "de": "herramienta:componer",
+      "para": "Analista SQL",
+      "tipo": "resultado",
+      "contenido": 108273.54651162791
+    },
+    {
+      "n": 11,
+      "de": "Analista SQL",
+      "para": "Reportero",
+      "tipo": "resultado verificado",
+      "contenido": {
+        "operation": "direct",
+        "value": 108273.54651162791,
+        "steps": [
+          {
+            "id": "step_1",
+            "rows": [
+              [
+                108273.54651162791
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "n": 12,
+      "de": "Reportero",
+      "para": "Verificador",
+      "tipo": "reporte",
+      "contenido": "El ingreso promedio por venta en la categoría Hogar es 108273.55.",
+      "salida_modelo": "El ingreso promedio por venta en la categoría Hogar es 108273.55."
+    },
+    {
+      "n": 13,
+      "de": "Verificador",
+      "para": "Verificador",
+      "tipo": "lista de chequeo de la pregunta",
+      "contenido": {
+        "asks_for": "number",
+        "periods": [
+          {
+            "from": "2026-03-01",
+            "to": "2026-08-31"
+          }
+        ]
+      },
+      "salida_modelo": "```json\n{\n  \"asks_for\": \"number\",\n  \"periods\": [{\"from\": \"2026-03-01\", \"to\": \"2026-08-31\"}]\n}\n```"
+    },
+    {
+      "n": 14,
+      "de": "Verificador",
+      "para": "herramienta:forma_resultado",
+      "tipo": "llamada",
+      "contenido": {
+        "operation": "direct"
+      }
+    },
+    {
+      "n": 15,
+      "de": "herramienta:forma_resultado",
+      "para": "Verificador",
+      "tipo": "resultado",
+      "contenido": [
+        "number",
+        "percent_change"
+      ]
+    },
+    {
+      "n": 16,
+      "de": "Verificador",
+      "para": "herramienta:revisar_periodos",
+      "tipo": "llamada",
+      "contenido": {
+        "periods": [
+          {
+            "from": "2026-03-01",
+            "to": "2026-08-31"
+          }
+        ]
+      }
+    },
+    {
+      "n": 17,
+      "de": "herramienta:revisar_periodos",
+      "para": "Verificador",
+      "tipo": "resultado",
+      "contenido": "todos cubiertos"
+    },
+    {
+      "n": 18,
+      "de": "Verificador",
+      "para": "herramienta:revisar_filtros",
+      "tipo": "llamada",
+      "contenido": {
+        "question": "Cual es el ingreso promedio por venta en la categoria Hogar?"
+      }
+    },
+    {
+      "n": 19,
+      "de": "herramienta:revisar_filtros",
+      "para": "Verificador",
+      "tipo": "resultado",
+      "contenido": "sin filtros faltantes"
+    },
+    {
+      "n": 20,
+      "de": "Verificador",
+      "para": "herramienta:verificar_fidelidad",
+      "tipo": "llamada",
+      "contenido": {
+        "report": "El ingreso promedio por venta en la categoría Hogar es 108273.55."
+      }
+    },
+    {
+      "n": 21,
+      "de": "herramienta:verificar_fidelidad",
+      "para": "Verificador",
+      "tipo": "resultado",
+      "contenido": "fiel"
+    },
+    {
+      "n": 22,
+      "de": "Verificador",
+      "para": "Usuario",
+      "tipo": "respuesta final",
+      "contenido": {
+        "report": "El ingreso promedio por venta en la categoría Hogar es 108273.55.",
+        "faithful": true
+      }
+    }
+  ]
+}

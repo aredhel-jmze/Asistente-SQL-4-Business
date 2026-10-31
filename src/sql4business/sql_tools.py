@@ -75,6 +75,28 @@ def validate_read_only(sql: str) -> str:
     return statement
 
 
+TRUNCATED_DATE = re.compile(r"strftime\s*\(\s*'(%Y-%m|%Y)'", re.IGNORECASE)
+FULL_DATE_LITERAL = re.compile(r"'\d{4}-\d{2}-\d{2}'")
+
+
+def lint_sql(sql: str) -> list[str]:
+    """Problems SQLite accepts silently but that change the result (Deliverable 3 linter).
+
+    Comparing a truncated date such as strftime('%Y-%m', sale_date) = '2026-03' with a
+    full date '2026-03-01' is valid SQL, yet the string comparison drops whole months
+    (the Deliverable 2 failure case q09). No error is raised, so only a lint finds it.
+    """
+
+    problems = []
+    if TRUNCATED_DATE.search(sql) and FULL_DATE_LITERAL.search(sql):
+        problems.append(
+            "The query compares a truncated date (strftime('%Y-%m', ...) or strftime('%Y', ...)) "
+            "with full dates 'YYYY-MM-DD'; the string comparison silently drops rows. Filter the "
+            "date column directly, for example sale_date BETWEEN '2026-03-01' AND '2026-05-31'."
+        )
+    return problems
+
+
 def connect_read_only(db_path: str | Path) -> sqlite3.Connection:
     """Open the database file in SQLite read-only mode."""
 

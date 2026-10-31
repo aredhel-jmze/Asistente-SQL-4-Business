@@ -150,6 +150,14 @@ def check_report(report: str, answer: Any, evidence: str = "") -> FidelityCheck:
         increase = answer["growth_pct"] >= 0
         if (increase and (not up or down)) or (not increase and (not down or up)):
             issues.append(f"The report must describe the change as an {answer['direction']}.")
+        # One change between two periods: stating it twice attributes it to each period
+        # ("60.13% between March and May and 60.13% between June and August").
+        stated = sum(1 for _, readings in figures if _matches(readings, abs(answer["growth_pct"])))
+        if stated > 1:
+            issues.append(
+                "The report states the percentage change more than once; it is a single change from "
+                "the first period to the second, so state it once."
+            )
     if isinstance(answer, dict) and "changed" in answer:
         same, changed = _has(report, SAME), _has(report, CHANGED)
         if answer["changed"] and (same or not changed):
