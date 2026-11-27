@@ -1,5 +1,5 @@
 %% Agente: Reportero (Deliverable 3) | versión 3, 2026-10-27
-%% Rol: redactar la respuesta para el gerente a partir del resultado verificado; nunca calcula.
+%% Rol: redactar la respuesta para el gerente a partir del resultado que aprobó el Verificador; nunca calcula.
 %% Entrada: pregunta, respuesta compuesta por código, filas de cada paso; opcionalmente los problemas
 %%   que encontró el Verificador en su respuesta anterior.
 %% Salida: una o dos oraciones en el idioma de la pregunta, en texto plano.

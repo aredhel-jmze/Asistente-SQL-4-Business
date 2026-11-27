@@ -1,7 +1,9 @@
 %% Agente: Verificador (Deliverable 3) | versión 2, 2026-10-27
 %% Rol: juez independiente. No escribe SQL ni respuestas: revisa que el trabajo de los otros agentes
 %%   responda la pregunta y que el reporte sea fiel a los datos.
-%% Entrada: pregunta, plan ejecutado, respuesta compuesta, reporte del Reportero.
+%% Entrada: (1) antes del Reportero: pregunta, plan ejecutado y respuesta compuesta; (2) después: el
+%%   reporte del Reportero. D4 (2026-11-26): el resultado se revisa antes de redactar (comentario del
+%%   profesor al D3); el texto que recibe el modelo no cambió.
 %% Herramientas: forma_resultado (qué entrega el resultado y si un plan directo descarta pasos),
 %%   revisar_periodos (qué meses filtra el SQL y, en un cambio porcentual, si el período anterior va
 %%   primero), revisar_filtros (nombres exactos de la base que la pregunta menciona y ningún paso usa),

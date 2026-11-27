@@ -3,8 +3,8 @@
 %% Entrada: plan JSON del Planificador.
 %% Herramientas: revisar_sql (linter de errores silenciosos de SQLite), ejecutar_sql (solo lectura),
 %%   componer (operación determinista).
-%% Salida: resultado verificado (filas por paso + respuesta compuesta) para el Reportero, o un motivo
-%%   de replanificación para el Planificador.
+%% Salida: resultado ejecutado (filas por paso + respuesta compuesta) para el Verificador, que lo revisa
+%%   antes de pasarlo al Reportero (D4), o un motivo de replanificación para el Planificador.
 %% Cuándo se llama al modelo: solo cuando una herramienta devuelve un error. Si todo funciona, el
 %%   Analista entrega el resultado sin gastar una llamada.
 %% Técnica: [[self_correction]] autocorrección guiada por la observación (self-debugging): el error

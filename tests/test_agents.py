@@ -44,6 +44,46 @@ def fix(step, sql):
     return json.dumps({"action": "fix", "step": step, "sql": sql})
 
 
+ROLE_PREFIXES = (("planner", "You are the Planner agent"), ("analyst", "You are the SQL Analyst agent"),
+                 ("verifier", "You are the Verifier agent"), ("reporter", "You are the Reporter agent"))
+
+
+def role_of_prompt(prompt):
+    return next(role for role, prefix in ROLE_PREFIXES if prompt.startswith(prefix))
+
+
+def role_of_output(output):
+    try:
+        data = json.loads(output)
+    except ValueError:
+        return "reporter"
+    if not isinstance(data, dict):
+        return "reporter"
+    return "planner" if "steps" in data else "analyst" if "action" in data else "verifier" if "asks_for" in data else "reporter"
+
+
+class RoutedGenerator:
+    """Scripted outputs served by agent, so a test does not depend on the order of the agents' calls.
+
+    Each output goes to the agent it belongs to (plan, analyst decision, checklist or report text);
+    a ("role", text) pair names the agent explicitly. ``by_role`` keeps each agent's prompts in order.
+    """
+
+    def __init__(self, *outputs):
+        self.queues = {role: [] for role, _ in ROLE_PREFIXES}
+        for output in outputs:
+            role, text = output if isinstance(output, tuple) else (role_of_output(output), output)
+            self.queues[role].append(text)
+        self.prompts = []
+        self.by_role = {role: [] for role, _ in ROLE_PREFIXES}
+
+    def generate(self, prompt, max_new_tokens=None):
+        role = role_of_prompt(prompt)
+        self.prompts.append(prompt)
+        self.by_role[role].append(prompt)
+        return self.queues[role].pop(0)
+
+
 ICL_EXAMPLES = load_examples(ROOT / "data" / "finetune" / "train.jsonl")[:50]
 GROWTH_PERIODS = (("2026-03-01", "2026-05-31"), ("2026-06-01", "2026-08-31"))
 
@@ -123,7 +163,7 @@ class ToolTests(unittest.TestCase):
 
 class AgentSystemTests(unittest.TestCase):
     def test_analyst_fixes_the_step_flagged_by_the_linter(self):
-        generator = ScriptedGenerator(
+        generator = RoutedGenerator(
             plan(Q1_TRUNCATED, Q2, operation="growth_pct"),
             fix("step_1", Q1),
             "Las ventas aumentaron un 60.13%.",
@@ -136,17 +176,20 @@ class AgentSystemTests(unittest.TestCase):
         kinds = [m.kind for m in result.trace.messages]
         self.assertIn("corrige el paso", kinds)
         self.assertEqual(kinds[-1], "respuesta final")
-        self.assertIn("truncated date", generator.prompts[1])
+        handoffs = [(m.sender, m.receiver, m.kind) for m in result.trace.messages if m.kind.startswith("resultado ")]
+        self.assertEqual(handoffs, [("Analista SQL", "Verificador", "resultado ejecutado"),
+                                    ("Verificador", "Reportero", "resultado verificado")])
+        self.assertIn("truncated date", generator.by_role["analyst"][0])
 
     def test_without_self_correction_the_first_error_ends_the_attempt(self):
-        generator = ScriptedGenerator(plan(Q1_TRUNCATED, Q2, operation="growth_pct"))
+        generator = RoutedGenerator(plan(Q1_TRUNCATED, Q2, operation="growth_pct"))
         with self.assertRaises(AgentFailure) as context:
             AgentSystem(DB, generator, disabled=["self_correction"]).answer(GROWTH_QUESTION)
         self.assertEqual(len(generator.prompts), 1)
         self.assertIn("truncated date", context.exception.reason)
 
     def test_analyst_can_send_the_plan_back_to_the_planner(self):
-        generator = ScriptedGenerator(
+        generator = RoutedGenerator(
             plan("SELECT SUM(quantity) FROM sales WHERE products.category = 'Alimentos'"),
             json.dumps({"action": "replan", "reason": "the plan needs a join"}),
             plan("SELECT SUM(s.quantity) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Alimentos'"),
@@ -155,13 +198,12 @@ class AgentSystemTests(unittest.TestCase):
         )
         result = AgentSystem(DB, generator).answer("¿Cuántas unidades de Alimentos se vendieron en total?")
         self.assertEqual(result.composed.value, 334)
-        self.assertIn("the plan needs a join", generator.prompts[2])
-        self.assertIn("no such column", generator.prompts[2])
+        self.assertIn("the plan needs a join", generator.by_role["planner"][1])
+        self.assertIn("no such column", generator.by_role["planner"][1])
 
     def test_verifier_sends_a_listing_back_when_one_name_is_asked(self):
-        generator = ScriptedGenerator(
+        generator = RoutedGenerator(
             plan(ALL_PRODUCTS),
-            "Audifonos Inalambricos tuvo el mayor ingreso.",
             checklist("name"),
             plan(TOP_PRODUCT),
             "El producto con mayor ingreso fue Notebook 14 pulgadas, con 91298340.",
@@ -169,46 +211,52 @@ class AgentSystemTests(unittest.TestCase):
         result = AgentSystem(DB, generator).answer(TOP_QUESTION)
         self.assertEqual(result.composed.value, [["Notebook 14 pulgadas", 91298340]])
         self.assertTrue(result.fidelity.faithful, result.fidelity.issues)
-        self.assertIn("asks for one product or category name", generator.prompts[3])
+        self.assertIn("asks for one product or category name", generator.by_role["planner"][1])
+        self.assertEqual(len(generator.by_role["reporter"]), 1)  # No report for the result sent back.
         self.assertEqual(result.trace.model_calls["Verificador"], 1)  # The checklist is computed once.
 
     def test_without_the_critic_the_listing_is_accepted(self):
-        generator = ScriptedGenerator(plan(ALL_PRODUCTS), "Resultado: Notebook 14 pulgadas con 91298340.")
+        generator = RoutedGenerator(plan(ALL_PRODUCTS), "Resultado: Notebook 14 pulgadas con 91298340.")
         result = AgentSystem(DB, generator, disabled=["critic", "report_refine"]).answer(TOP_QUESTION)
         self.assertEqual(len(result.composed.value), 10)
         self.assertEqual(result.trace.model_calls["Verificador"], 0)
 
     def test_reporter_rewrites_an_unfaithful_report(self):
         ropa = plan("SELECT COUNT(*) FROM products WHERE category = 'Ropa'")
-        generator = ScriptedGenerator(ropa, "La categoría Ropa tiene 3 productos.", checklist("number"),
+        generator = RoutedGenerator(ropa, "La categoría Ropa tiene 3 productos.", checklist("number"),
                                       "La categoría Ropa tiene 2 productos.")
         result = AgentSystem(DB, generator).answer("¿Cuántos productos tiene Ropa?")
         self.assertTrue(result.fidelity.faithful)
-        self.assertIn("does not state the verified answer", generator.prompts[3])
-        generator = ScriptedGenerator(ropa, "La categoría Ropa tiene 3 productos.", checklist("number"))
+        self.assertIn("does not state the verified answer", generator.by_role["reporter"][1])
+        generator = RoutedGenerator(ropa, "La categoría Ropa tiene 3 productos.", checklist("number"))
         result = AgentSystem(DB, generator, disabled=["report_refine"]).answer("¿Cuántos productos tiene Ropa?")
         self.assertFalse(result.fidelity.faithful)
 
     def test_planner_revises_invalid_json_itself(self):
-        generator = ScriptedGenerator("not json", plan("SELECT price FROM products WHERE name = 'Set de Ollas'"),
+        generator = RoutedGenerator(("planner", "not json"), plan("SELECT price FROM products WHERE name = 'Set de Ollas'"),
                                       "El Set de Ollas cuesta 59990.", checklist("number"))
         result = AgentSystem(DB, generator).answer("¿Cuánto cuesta el Set de Ollas?")
         self.assertEqual(result.composed.value, 59990)
-        self.assertIn("not a valid plan", generator.prompts[1])
+        self.assertIn("not a valid plan", generator.by_role["planner"][1])
 
     def test_fallback_keeps_the_previous_answer_when_the_new_plan_fails(self):
         bad = plan("SELECT nothing FROM nowhere")
-        generator = ScriptedGenerator(
-            plan(ALL_PRODUCTS), "Resultado: Notebook 14 pulgadas.", checklist("name"),
+        generator = RoutedGenerator(
+            plan(ALL_PRODUCTS), checklist("name"),
             bad, json.dumps({"action": "replan", "reason": "x"}),
             bad, json.dumps({"action": "replan", "reason": "x"}),
+            "Resultado: Notebook 14 pulgadas.", "Resultado: Notebook 14 pulgadas.", "Resultado: Notebook 14 pulgadas.",
         )
         result = AgentSystem(DB, generator).answer(TOP_QUESTION)
         self.assertEqual(result.status, "respaldo")
+        # The fallback result is reported only when it is used, and its report is checked like any other.
+        kinds = [m.kind for m in result.trace.messages]
+        self.assertLess(kinds.index("resultado de respaldo"), kinds.index("reporte"))
+        self.assertEqual(kinds[-1], "respuesta de respaldo")
         self.assertEqual(len(result.composed.value), 10)
 
     def test_traces_are_saved_for_answers_and_failures(self):
-        generator = ScriptedGenerator(plan(Q1_TRUNCATED, Q2, operation="growth_pct"))
+        generator = RoutedGenerator(plan(Q1_TRUNCATED, Q2, operation="growth_pct"))
         with tempfile.TemporaryDirectory() as folder:
             try:
                 AgentSystem(DB, generator, disabled=["self_correction"]).answer(GROWTH_QUESTION)
@@ -237,24 +285,24 @@ class Version2Tests(unittest.TestCase):
 
     def test_verifier_sends_back_a_plan_that_drops_the_category(self):
         question = "¿Cuántas unidades de la categoría Alimentos se vendieron en total?"
-        generator = ScriptedGenerator(
+        generator = RoutedGenerator(
             plan("SELECT SUM(quantity) FROM sales"), "Se vendieron 1655 unidades.", checklist("number"),
             plan("SELECT SUM(s.quantity) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Alimentos'"),
             "Se vendieron 334 unidades de Alimentos.",
         )
         result = AgentSystem(DB, generator).answer(question)
         self.assertEqual(result.composed.value, 334)
-        self.assertIn("names 'Alimentos'", generator.prompts[3])
+        self.assertIn("names 'Alimentos'", generator.by_role["planner"][1])
 
     def test_verifier_sends_back_a_growth_with_periods_in_reverse(self):
-        generator = ScriptedGenerator(
+        generator = RoutedGenerator(
             plan(Q2, Q1, operation="growth_pct"), "Las ventas disminuyeron un 37.55%.",
             checklist("percent_change", *GROWTH_PERIODS),
             plan(Q1, Q2, operation="growth_pct"), "Las ventas aumentaron un 60.13%.",
         )
         result = AgentSystem(DB, generator).answer(GROWTH_QUESTION)
         self.assertGreater(result.composed.value["growth_pct"], 0)
-        self.assertIn("earlier period in the first step", generator.prompts[3])
+        self.assertIn("earlier period in the first step", generator.by_role["planner"][1])
         # The order problem is reported by revisar_periodos, so the trace shows which tool found it.
         outputs = [m.content for m in result.trace.messages
                    if m.sender == "herramienta:revisar_periodos"]
@@ -264,12 +312,12 @@ class Version2Tests(unittest.TestCase):
         total = "SELECT SUM(quantity) FROM sales"
         part = "SELECT SUM(s.quantity) FROM sales s JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Electronica'"
         question = "¿Qué porcentaje de las unidades corresponde a Electronica?"
-        generator = ScriptedGenerator(plan(part, total, operation="share_pct"), json.dumps({"action": "swap"}),
+        generator = RoutedGenerator(plan(part, total, operation="share_pct"), json.dumps({"action": "swap"}),
                                       "Electronica representa el 29.49% de las unidades.", checklist("share"))
         result = AgentSystem(DB, generator).answer(question)
         self.assertAlmostEqual(result.composed.value["share_pct"], 29.4864, places=3)
         self.assertIn("invierte el orden de los pasos", [m.kind for m in result.trace.messages])
-        generator = ScriptedGenerator(plan(part, total, operation="share_pct"), fix("step_1", part),
+        generator = RoutedGenerator(plan(part, total, operation="share_pct"), fix("step_1", part),
                                       plan(total, part, operation="share_pct"),
                                       "Electronica representa el 29.49% de las unidades.", checklist("share"))
         result = AgentSystem(DB, generator).answer(question)
@@ -277,13 +325,13 @@ class Version2Tests(unittest.TestCase):
 
     def test_growth_instruction_only_for_growth_answers(self):
         ropa = plan("SELECT COUNT(*) FROM products WHERE category = 'Ropa'")
-        generator = ScriptedGenerator(ropa, "La categoría Ropa tiene 2 productos.", checklist("number"))
+        generator = RoutedGenerator(ropa, "La categoría Ropa tiene 2 productos.", checklist("number"))
         AgentSystem(DB, generator).answer("¿Cuántos productos tiene Ropa?")
-        self.assertNotIn("one percentage change", generator.prompts[1])
-        generator = ScriptedGenerator(plan(Q1, Q2, operation="growth_pct"), "Las ventas aumentaron un 60.13%.",
+        self.assertNotIn("one percentage change", generator.by_role["reporter"][0])
+        generator = RoutedGenerator(plan(Q1, Q2, operation="growth_pct"), "Las ventas aumentaron un 60.13%.",
                                       checklist("percent_change", *GROWTH_PERIODS))
         AgentSystem(DB, generator).answer(GROWTH_QUESTION)
-        self.assertIn("one percentage change", generator.prompts[1])
+        self.assertIn("one percentage change", generator.by_role["reporter"][0])
 
 
 class Deliverable2FailureTests(unittest.TestCase):
@@ -353,31 +401,70 @@ class EvaluationTests(unittest.TestCase):
 
 
 class RecordedTraceTests(unittest.TestCase):
-    """Replays the v2 run from the model outputs saved in its traces (no GPU)."""
+    """Replays the D3 v2 run from the model outputs saved in its traces (no GPU).
 
-    # Tool outputs whose logging gained detail after v2 (pasos descartados, orden de los períodos).
-    LOGGING_ONLY = {"herramienta:forma_resultado", "herramienta:revisar_periodos"}
+    Deliverable 4 checks the result before the Reportero writes, so the calls come in another order and
+    a result sent back to the Planner gets no report. Each agent gets its own recorded outputs; the
+    Planner's plans, the feedback it receives and the final result must be those of the v2 run.
+    """
 
     @staticmethod
-    def _key(message):
-        return (message["de"], message["para"], message["tipo"],
-                json.dumps(message["contenido"], ensure_ascii=False, sort_keys=True, default=str))
+    def _generators(recorded):
+        queues = {"planner": [], "analyst": [], "verifier": []}
+        reports = {}  # json of the value the report is about -> the Reporter's outputs for it, in order
+        names = {"Planificador": "planner", "Analista SQL": "analyst", "Verificador": "verifier"}
+        value = None
+        for message in recorded["trace"]:
+            if message["tipo"] == "resultado verificado":
+                value = json.dumps(message["contenido"]["value"], ensure_ascii=False)
+            if "salida_modelo" not in message:
+                continue
+            if message["de"] == "Reportero":
+                reports.setdefault(value, []).append(message["salida_modelo"])
+            else:
+                queues[names[message["de"]]].append(message["salida_modelo"])
 
-    def test_current_code_reproduces_every_v2_decision(self):
+        class Queue:
+            def __init__(self, outputs):
+                self.outputs = list(outputs)
+
+            def generate(self, prompt, max_new_tokens=None):
+                return self.outputs.pop(0)
+
+        class Reporter:
+            def generate(self, prompt, max_new_tokens=None):
+                key = max((k for k in reports if k in prompt), key=len)
+                # A fallback report is now checked and may be rewritten; v2 recorded no rewrite for it.
+                return reports[key].pop(0) if reports[key] else ""
+
+        return {**{role: Queue(outputs) for role, outputs in queues.items()}, "reporter": Reporter()}
+
+    @staticmethod
+    def _decisions(messages):
+        plans = [m["contenido"] for m in messages if m["tipo"] == "plan"]
+        feedback = [m["contenido"] for m in messages if m["para"] == "Planificador" and m["tipo"].startswith("replanificar")]
+        return plans, feedback
+
+    def test_reordered_flow_keeps_every_v2_decision(self):
         paths = sorted((ROOT / "results" / "deliverable3" / "trazas").glob("*.json"))
         self.assertEqual(len(paths), 27)
         for path in paths:
             with self.subTest(trace=path.name):
                 recorded = json.loads(path.read_text(encoding="utf-8"))
-                outputs = [m["salida_modelo"] for m in recorded["trace"] if "salida_modelo" in m]
+                outputs = [m for m in recorded["trace"] if "salida_modelo" in m]
                 self.assertEqual(len(outputs), recorded["model_calls"])
-                try:
-                    messages = AgentSystem(DB, ScriptedGenerator(*outputs)).answer(recorded["question"]).trace.to_list()
-                except AgentFailure as failure:
-                    messages = failure.trace.to_list()
-                expected = [self._key(m) for m in recorded["trace"] if m["de"] not in self.LOGGING_ONLY]
-                replayed = [self._key(m) for m in messages if m["de"] not in self.LOGGING_ONLY]
-                self.assertEqual(replayed, expected)
+                system = AgentSystem(DB, None, agent_generators=self._generators(recorded))
+                result = system.answer(recorded["question"])
+                messages = result.trace.to_list()
+                self.assertEqual(self._decisions(messages), self._decisions(recorded["trace"]))
+                self.assertEqual(result.composed.value, recorded["composed"]["value"])
+                self.assertEqual(result.status, recorded["status"])
+                sent_back = any(m["de"] == "Verificador" and m["para"] == "Planificador" for m in recorded["trace"])
+                if not sent_back:
+                    self.assertEqual(result.report, recorded["report_text"])
+                    self.assertEqual(result.model_calls, recorded["model_calls"])
+                elif result.status == "aceptado":  # The report of the result sent back is no longer written.
+                    self.assertLess(result.trace.model_calls["Reportero"], recorded["model_calls_by_agent"]["Reportero"])
 
 
 if __name__ == "__main__":

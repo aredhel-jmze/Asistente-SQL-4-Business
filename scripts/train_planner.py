@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Deliverable 4: QLoRA fine-tuning of the Planificador (Qwen2.5-Coder-3B-Instruct) on a Colab T4.
+"""Deliverable 4: QLoRA fine-tuning of the Planificador (Qwen2.5-Coder-3B-Instruct).
+
+The measured run used a Modal H100 in bf16 (scripts/modal_d4.py); on a Colab T4 (no bf16) it uses fp16.
 
 Trains a LoRA adapter on data/finetune/train.jsonl, measures the loss on data/finetune/dev.jsonl
 during training, and writes to --output-dir (default results/deliverable4/adapter):
@@ -12,7 +14,7 @@ during training, and writes to --output-dir (default results/deliverable4/adapte
 Only the completion (the plan JSON) is learned: the prompt tokens are masked out of the loss. The
 prompt is exactly the one the Planner reads at run time, so the adapter is used without changes.
 
-    python scripts/train_planner.py                                  # about 1 h on a T4
+    python scripts/train_planner.py                                  # about 1 h on a T4, less on an H100
     python scripts/train_planner.py --push-to-hub usuario/sql4business-planificador-qlora
     python scripts/train_planner.py --limit 16 --epochs 1            # smoke test
 """
@@ -84,6 +86,8 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=4)
     parser.add_argument("--limit", type=int, default=0, help="examples per split, for a smoke test")
     parser.add_argument("--push-to-hub", default="", help="Hugging Face repo id, e.g. usuario/sql4business-planificador-qlora")
+    parser.add_argument("--dtype", choices=("auto", "bf16", "fp16"), default="auto",
+                        help="compute precision; auto = bf16 when the GPU supports it (H100), else fp16 (T4)")
     args = parser.parse_args()
 
     import torch
@@ -92,6 +96,9 @@ def main() -> None:
 
     random.seed(args.seed)
     torch.manual_seed(args.seed)
+    if args.dtype == "auto":
+        args.dtype = "bf16" if torch.cuda.is_bf16_supported() else "fp16"
+    dtype = torch.bfloat16 if args.dtype == "bf16" else torch.float16
     started = time.perf_counter()
 
     tokenizer = AutoTokenizer.from_pretrained(args.model, revision=args.revision)
@@ -101,10 +108,10 @@ def main() -> None:
         device_map={"": 0},
         quantization_config=BitsAndBytesConfig(
             load_in_4bit=True, bnb_4bit_quant_type="nf4",
-            # The T4 has no native bf16: training computes in fp16 (inference keeps the D2/D3 setting).
-            bnb_4bit_compute_dtype=torch.float16,
+            # bf16 on GPUs that have it (as in inference); the T4 has no native bf16 and trains in fp16.
+            bnb_4bit_compute_dtype=dtype,
         ),
-        torch_dtype=torch.float16,
+        torch_dtype=dtype,
     )
     model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)
     lora = LoraConfig(r=args.rank, lora_alpha=args.alpha, lora_dropout=args.dropout, bias="none",
@@ -130,12 +137,13 @@ def main() -> None:
         lambda step: (step + 1) / warmup_steps if step < warmup_steps
         else 0.5 * (1 + math.cos(math.pi * (step - warmup_steps) / max(1, total_steps - warmup_steps))),
     )
-    scaler = torch.amp.GradScaler("cuda")
+    # Loss scaling is only needed in fp16; bf16 has the exponent range of fp32.
+    scaler = torch.amp.GradScaler("cuda", enabled=args.dtype == "fp16")
 
     def loss_of(row: dict) -> torch.Tensor:
         input_ids = torch.tensor([row["input_ids"]], device=model.device)
         labels = torch.tensor([row["labels"]], device=model.device)
-        with torch.autocast("cuda", dtype=torch.float16):
+        with torch.autocast("cuda", dtype=dtype):
             return model(input_ids=input_ids, labels=labels).loss
 
     def dev_loss() -> float:
@@ -199,7 +207,7 @@ def main() -> None:
         "lora": {"r": args.rank, "alpha": args.alpha, "dropout": args.dropout, "target_modules": TARGET_MODULES},
         "optimizer": "AdamW", "lr": args.lr, "schedule": f"linear warmup {args.warmup:.0%} + cosine",
         "epochs": args.epochs, "batch_size": 1, "grad_accum": args.grad_accum, "optimizer_steps": total_steps,
-        "max_length": args.max_length, "precision": "fp16 autocast, fp16 4-bit compute", "seed": args.seed,
+        "max_length": args.max_length, "precision": f"{args.dtype} autocast, {args.dtype} 4-bit compute", "seed": args.seed,
         "train_examples": len(train), "dev_examples": len(dev),
         "trainable_params": trainable, "total_params": total,
         "loss": "cross-entropy on the plan tokens only (prompt masked)",
@@ -255,7 +263,7 @@ plan JSON (pasos SQL + operación de composición) sobre una base SQLite sintét
   valor de referencia; sin preguntas ni cálculos de los conjuntos de evaluación).
 - Método: {c['method']}; r={c['lora']['r']}, alpha={c['lora']['alpha']}, dropout={c['lora']['dropout']},
   módulos {', '.join(c['lora']['target_modules'])}; AdamW lr={c['lr']}, {c['schedule']}; {c['epochs']} épocas,
-  lote efectivo {c['grad_accum']}, {c['optimizer_steps']} pasos.
+  lote efectivo {c['grad_accum']}, {c['optimizer_steps']} pasos; precisión {c['precision']}.
 - Hardware: {summary['hardware']['gpu']}; tiempo de entrenamiento {summary['seconds'] / 60:.1f} min.
 - Pérdida de validación: {summary['first_dev_loss']:.4f} antes de entrenar, {summary['final_dev_loss']:.4f} al final.
 

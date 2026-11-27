@@ -5,12 +5,17 @@ prompt (a versioned file in ``prompts/``), a defined input and output, and a dec
 happens next:
 
   Planificador  question -> JSON plan. Revises its own output when the JSON is invalid.
-  Analista SQL  plan -> verified result. Runs the tools; on an error it asks the model whether to
+  Analista SQL  plan -> executed result. Runs the tools; on an error it asks the model whether to
                 fix the failing step itself or to send the plan back to the Planificador.
+  Verificador   (1) question + executed result -> pass the verified result to the Reportero, or
+                send the case back to the Planificador with a concrete reason.
   Reportero     verified result -> sentences for the manager. Rewrites them with the
                 Verificador's feedback.
-  Verificador   question + result + report -> accept, send the report back to the Reportero, or
-                send the case back to the Planificador with a concrete reason.
+  Verificador   (2) question + result + report -> accept, or send the report back to the Reportero.
+
+Deliverable 4: the Verificador checks the result before the Reportero writes (D3 checked it after
+the report, although those checks never read the report). The decisions and the feedback are the
+same; the Reportero is no longer called for a result that is sent back to the Planificador.
 
 Every message between agents and every tool call is logged in a ``Trace``. The prompting
 techniques of each agent can be switched off one at a time (``disabled``) for the ablation.
@@ -472,12 +477,9 @@ class AnalystAgent(_Agent):
         while True:
             failed, error, executions, composed = self._execute(steps, operation, trace)
             if error is None:
-                trace.add(
-                    ANALYST, REPORTER, "resultado verificado",
-                    {"operation": operation, "value": composed.value,
-                     "steps": [{"id": s["id"], "rows": rows_to_json(e.rows[:10])} for s, e in zip(steps, executions)]},
-                )
-                return AnalystOutcome("ok", steps, executions, composed)
+                outcome = AnalystOutcome("ok", steps, executions, composed)
+                trace.add(ANALYST, VERIFIER, "resultado ejecutado", result_message(outcome))
+                return outcome
             if "self_correction" not in self.system.enabled:
                 trace.add(ANALYST, USER, "error sin corrección (técnica desactivada)", {"failed": failed, "error": error})
                 return AnalystOutcome("failed", steps, reason=error)
@@ -614,10 +616,9 @@ class VerifierAgent(_Agent):
         self._analysis[question] = analysis
         return analysis
 
-    def run(
-        self, question: str, outcome: AnalystOutcome, report: str, source: str, trace: Trace,
-        can_replan: bool, can_revise: bool,
-    ) -> Verdict:
+    def check_result(self, question: str, outcome: AnalystOutcome, trace: Trace, can_replan: bool) -> Verdict:
+        """Before the Reportero: does the executed result answer the question? (checklist + plan checks)"""
+
         checks: dict[str, Any] = {}
         if "critic" in self.system.enabled and can_replan:
             analysis = self.analyse_question(question, trace)
@@ -628,9 +629,16 @@ class VerifierAgent(_Agent):
             )
             if problems:
                 feedback = " ".join(problems)
-                fidelity = FidelityCheck(False, ["Not checked: the plan was sent back to the Planner."])
+                fidelity = FidelityCheck(False, ["Not reported: the plan was sent back to the Planner."])
                 trace.add(VERIFIER, PLANNER, "replanificar", feedback)
                 return Verdict("replan", feedback, fidelity, checks)
+        return Verdict("accept", "", FidelityCheck(True, []), checks)
+
+    def check_report(
+        self, question: str, outcome: AnalystOutcome, report: str, source: str, trace: Trace,
+        can_revise: bool, final_kind: str = "respuesta final",
+    ) -> Verdict:
+        """After the Reportero: is every figure of the report faithful to the verified result?"""
 
         if source == "model":
             evidence = question + "\n" + json.dumps(
@@ -641,13 +649,20 @@ class VerifierAgent(_Agent):
             fidelity = FidelityCheck(False, ["The Reporter returned no text; the deterministic summary is shown."])
         trace.add(VERIFIER, "herramienta:verificar_fidelidad", "llamada", {"report": report})
         trace.add("herramienta:verificar_fidelidad", VERIFIER, "resultado", fidelity.issues or "fiel")
-        checks["report_issues"] = fidelity.issues
+        checks = {"report_issues": fidelity.issues}
         if not fidelity.faithful and can_revise:
             feedback = " ".join(fidelity.issues)
             trace.add(VERIFIER, REPORTER, "revisar reporte", feedback)
             return Verdict("revise_report", feedback, fidelity, checks)
-        trace.add(VERIFIER, USER, "respuesta final", {"report": report, "faithful": fidelity.faithful})
+        trace.add(VERIFIER, USER, final_kind, {"report": report, "faithful": fidelity.faithful})
         return Verdict("accept", "", fidelity, checks)
+
+
+def result_message(outcome: AnalystOutcome) -> dict[str, Any]:
+    """What travels between the Analista, the Verificador and the Reportero: operation, value, rows."""
+
+    return {"operation": outcome.composed.operation, "value": outcome.composed.value,
+            "steps": [{"id": s["id"], "rows": rows_to_json(e.rows[:10])} for s, e in zip(outcome.steps, outcome.executions)]}
 
 
 def text_labels(conn) -> set[str]:
@@ -726,14 +741,15 @@ class AgentSystem:
         feedback: str | None = None
         previous_plan: Any = None
         replans = critic_replans = 0
-        best: AgentResult | None = None
+        # A result the Verificador sent back: kept (without a report yet) in case the next plan fails.
+        best: tuple[dict[str, Any], AnalystOutcome] | None = None
 
         while True:
             try:
                 plan = self.planner.run(question, trace, feedback, previous_plan)
             except AgentFailure:
                 if best:
-                    return self._fallback(best, trace, "the new plan was not valid")
+                    return self._deliver(question, *best, trace, fallback="the new plan was not valid")
                 raise
             outcome = self.analyst.run(question, plan, trace)
             if outcome.status != "ok":
@@ -742,44 +758,47 @@ class AgentSystem:
                     feedback, previous_plan = outcome.reason, {"steps": outcome.steps, "operation": plan["operation"]}
                     continue
                 if best:
-                    return self._fallback(best, trace, outcome.reason)
+                    return self._deliver(question, *best, trace, fallback=outcome.reason)
                 trace.add(ANALYST, USER, "sin respuesta", outcome.reason)
                 raise AgentFailure(question, outcome.reason, trace)
 
-            report, source, _ = self.reporter.run(question, outcome.steps, outcome, trace)
-            revisions = 0
             can_replan = critic_replans < self.max_critic_replans and replans < self.max_replans
-            while True:
-                verdict = self.verifier.run(
-                    question, outcome, report, source, trace,
-                    can_replan=can_replan, can_revise=revisions < self.max_report_revisions,
-                )
-                if verdict.action != "revise_report":
-                    break
-                revisions += 1
-                report, source, _ = self.reporter.run(
-                    question, outcome.steps, outcome, trace, feedback=verdict.feedback, previous=report
-                )
-                can_replan = False  # The plan was already accepted; only the report is being revised.
-
-            plan = {**plan, "steps": outcome.steps}
-            candidate = AgentResult(question, plan, outcome.executions, outcome.composed, report, source,
-                                    verdict.fidelity, "aceptado", trace)
+            verdict = self.verifier.check_result(question, outcome, trace, can_replan=can_replan)
             if verdict.action == "replan":
-                if best is not None and best.composed.value == candidate.composed.value:
-                    return candidate  # The new plan reached the same result: nothing left to fix.
-                best = candidate
+                if best is not None and best[1].composed.value == outcome.composed.value:
+                    return self._deliver(question, plan, outcome, trace)  # Same result again: nothing left to fix.
+                best = (plan, outcome)
                 critic_replans += 1
                 replans += 1
                 feedback, previous_plan = verdict.feedback, {"steps": outcome.steps, "operation": plan["operation"]}
                 continue
-            return candidate
+            return self._deliver(question, plan, outcome, trace)
 
-    @staticmethod
-    def _fallback(best: AgentResult, trace: Trace, reason: str) -> AgentResult:
-        trace.add(VERIFIER, USER, "respuesta de respaldo", {"reason": reason, "report": best.report})
-        best.status = "respaldo"
-        return best
+    def _deliver(
+        self, question: str, plan: dict[str, Any], outcome: AnalystOutcome, trace: Trace, fallback: str = "",
+    ) -> AgentResult:
+        """Verified result -> Reportero -> fidelity check (with up to max_report_revisions rewrites)."""
+
+        if fallback:
+            trace.add(VERIFIER, REPORTER, "resultado de respaldo", {"reason": fallback, **result_message(outcome)})
+        else:
+            trace.add(VERIFIER, REPORTER, "resultado verificado", result_message(outcome))
+        final_kind = "respuesta de respaldo" if fallback else "respuesta final"
+        report, source, _ = self.reporter.run(question, outcome.steps, outcome, trace)
+        revisions = 0
+        while True:
+            verdict = self.verifier.check_report(
+                question, outcome, report, source, trace,
+                can_revise=revisions < self.max_report_revisions, final_kind=final_kind,
+            )
+            if verdict.action != "revise_report":
+                break
+            revisions += 1
+            report, source, _ = self.reporter.run(
+                question, outcome.steps, outcome, trace, feedback=verdict.feedback, previous=report
+            )
+        return AgentResult(question, {**plan, "steps": outcome.steps}, outcome.executions, outcome.composed,
+                           report, source, verdict.fidelity, "respaldo" if fallback else "aceptado", trace)
 
 
 def save_agent_trace(result: AgentResult | AgentFailure, path: str | Path) -> None:

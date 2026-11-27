@@ -11,7 +11,7 @@ Generative Artificial Intelligence (580694), Universidad de Concepción.
 | Deliverable 1 | [`docs/deliverable1.pdf`](docs/deliverable1.pdf) | [`notebooks/baseline_eval.ipynb`](notebooks/baseline_eval.ipynb) |
 | Deliverable 2 | [`docs/deliverable2.pdf`](docs/deliverable2.pdf) · [video](https://drive.google.com/file/d/1ovemshyIkbVYasXr7zaFDXIrdrHN7OH5/view) | [`notebooks/deliverable2_demo.ipynb`](notebooks/deliverable2_demo.ipynb) |
 | Deliverable 3 | [`docs/deliverable3.pdf`](docs/deliverable3.pdf) · [video](https://drive.google.com/file/d/1I9KuGPZe99HninfvLdC2E1XQjTf00EQZ/view?usp=sharing) | [`notebooks/deliverable3_demo.ipynb`](notebooks/deliverable3_demo.ipynb) |
-| Deliverable 4 | [`docs/deliverable4.pdf`](docs/deliverable4.pdf) · video: **PENDIENTE** · adaptador: **PENDIENTE (Hugging Face)** | [`notebooks/deliverable4_finetune.ipynb`](notebooks/deliverable4_finetune.ipynb) |
+| Deliverable 4 | [`docs/deliverable4.pdf`](docs/deliverable4.pdf) · [video](https://youtu.be/zXe4w0KGbcs) · adaptador: [`vicentesonez/sql4business-planificador-qlora`](https://huggingface.co/vicentesonez/sql4business-planificador-qlora) | [`scripts/modal_d4.py`](scripts/modal_d4.py) (Modal, corrida medida) · [`notebooks/deliverable4_finetune.ipynb`](notebooks/deliverable4_finetune.ipynb) (Colab) |
 
 ## Definición de la tarea
 
@@ -49,8 +49,11 @@ El Deliverable 4 ajusta (QLoRA) el modelo del **Planificador** del sistema de ag
 tres agentes siguen con el modelo base; el adaptador se carga una sola vez sobre el mismo modelo
 (`Qwen/Qwen2.5-Coder-3B-Instruct`, revisión `488639f`, NF4) y se apaga para ellos.
 
-- **Adaptador publicado:** **PENDIENTE** (`results/deliverable4/adapter_hf.json` guarda el repo y la revisión exacta).
-- **Video:** **PENDIENTE**.
+- **Adaptador publicado:** [`vicentesonez/sql4business-planificador-qlora`](https://huggingface.co/vicentesonez/sql4business-planificador-qlora), revisión `0b5a6a6` (`results/deliverable4/adapter_hf.json` guarda el repo y la
+  revisión exacta; la evaluación descarga esa revisión, así que los resultados son los de esos pesos).
+- **Video:** [youtu.be/zXe4w0KGbcs](https://youtu.be/zXe4w0KGbcs): q12 y q11-p con el Planificador base y
+  con el ajustado, sobre la misma entrada (`modal run scripts/modal_d4.py::demo --ids q12,q11-p`; trazas en
+  `results/deliverable4/demo/`).
 
 ### Por qué el Planificador (evidencia del D3)
 
@@ -81,7 +84,7 @@ que la salida es idéntica a la versionada. Código: [`src/sql4business/finetune
 | Cómo se produce cada salida | **por código, sin ningún modelo generador**: el plan se construye a partir de los parámetros de la tarea, se ejecuta con las herramientas del Analista (validación, SQLite de solo lectura, composición) y se compara con un valor de referencia calculado en Python sobre las tablas; 0 discrepancias; se descartan empates |
 | Tamaño | 1.282 ejemplos: 883 de plan y 399 de reparación; train 1.155 / dev 127, separados por cálculo |
 | Reparación | 7 tipos de plan equivocado (×57): orden invertido (q12), filtro omitido (q04), participación como crecimiento (q11-p), dos valores con `direct` (q11), crecimiento en vez de comparar líderes (q10), listado en vez del primero (q03), mes corrido. La retroalimentación es la que produce `critic_problems`, la misma función del Verificador |
-| Revisión manual | muestra de 60 ejemplos en `data/finetune/revision_manual.csv`: **PENDIENTE** (revisores, N/60 correctos) |
+| Revisión | además de la verificación por ejecución de los 1.282 pares (fila anterior), se revisó a mano una muestra al azar de **60 ejemplos** (`data/finetune/revision_manual.csv`, semilla fija): pregunta, períodos, filtros, operación y, en las reparaciones, que la retroalimentación corresponda al plan equivocado. **60/60 correctos.** Observaciones: 6 preguntas leen "ventas" como número de transacciones, la convención que causa el caso de falla q09-p; 2 preguntas en inglés tienen redacción poco natural. Resultado fila por fila en [`data/finetune/revision_manual_resultado.csv`](data/finetune/revision_manual_resultado.csv) |
 | Separación de la evaluación | de 4.737 tareas candidatas se eliminan 216 con la misma operación y resultados que una pregunta evaluada, 182 con algún paso numérico igual a un paso evaluado y 52 con similitud de 5-gramas ≥ 0,5. Máxima similitud restante: 0,19 (q15-p). `tests/test_finetune_data.py` lo comprueba |
 
 Resumen completo en [`data/finetune/reporte.json`](data/finetune/reporte.json).
@@ -90,10 +93,21 @@ Resumen completo en [`data/finetune/reporte.json`](data/finetune/reporte.json).
 
 QLoRA con un bucle propio en PyTorch + PEFT 0.22: base NF4 de 4 bits; LoRA r=16, α=32, dropout 0,05 en
 `q,k,v,o,gate,up,down_proj`; AdamW, lr 2e-4, 5 % de calentamiento y coseno; 2 épocas; lote efectivo 8;
-fp16 (el T4 no tiene bf16); gradient checkpointing; largo máximo 2.560 tokens (el mayor ejemplo tiene
-2.243). La pérdida se calcula solo sobre los tokens del plan. Salidas en `results/deliverable4/adapter/`:
-`loss.csv`, `training_log.json` (configuración, hardware, versiones, tiempo) y la tarjeta del modelo.
-Los pesos (`*.safetensors`) no se versionan en git: están en Hugging Face.
+bf16 (`--dtype auto`: bf16 si la GPU lo tiene, fp16 en un T4); gradient checkpointing; largo máximo 2.560
+tokens (el mayor ejemplo tiene 2.243). La pérdida se calcula solo sobre los tokens del plan. Salidas en
+`results/deliverable4/adapter/`: `loss.csv`, `training_log.json` (configuración, hardware, versiones,
+tiempo) y la tarjeta del modelo. Los pesos (`*.safetensors`) no se versionan en git: están en Hugging Face.
+
+| Corrida medida (26-11-2026, commit `42b2a12`) | |
+|---|---|
+| Hardware | NVIDIA H100 80 GB en Modal (`scripts/modal_d4.py`), bf16 |
+| Pasos / tiempo | 290 pasos (2 épocas × 145), 16,7 min |
+| Parámetros entrenables | 29,9 M (LoRA r=16 en las 7 proyecciones) |
+| Pérdida dev | 0,158 antes de entrenar → 0,009 a los 25 pasos → 0,0002 al final |
+| Versiones | torch 2.11.0, transformers 5.17.0, peft 0.22.0, bitsandbytes 0.50.2 |
+
+La pérdida dev cae casi a cero en pocos pasos: el Planificador aprende rápido el formato de las
+plantillas. Por eso las paráfrasis externas son la prueba que importa, no la pérdida.
 
 ### Evaluación ([`scripts/evaluate_d4.py`](scripts/evaluate_d4.py))
 
@@ -107,16 +121,105 @@ Las mismas 27 preguntas y criterios, los cinco en la misma sesión:
 | `agentes_ft` | (4) el mismo sistema con el Planificador ajustado |
 | `control_icl` | control: pesos base; el Planificador recibe en su prompt los 4 ejemplos de entrenamiento más parecidos ([`icl_control.py`](src/sql4business/icl_control.py)) |
 
-Además se cuenta cuántas veces el Planificador repite un plan devuelto. Resultados: **PENDIENTE**
-(`results/deliverable4/<config>.json`, trazas en `results/deliverable4/trazas_<config>/`, detalle por
-pregunta en `results/deliverable4/por_pregunta.md`, tabla del PDF en `docs/deliverable4_results.tex`).
+Además se cuenta cuántas veces el Planificador repite un plan devuelto. Archivos:
+`results/deliverable4/<config>.json`, una traza por pregunta en `results/deliverable4/trazas_<config>/`,
+detalle por pregunta en `results/deliverable4/por_pregunta.md` y tabla del PDF en
+`docs/deliverable4_results.tex`.
+
+#### Corrida medida (26-11-2026, Modal H100, commit `ca38c00`, adaptador en la revisión `0b5a6a6`)
+
+| Sistema | Oficial sql | answer | e2e | Paráfrasis sql | answer | e2e | Combinadas e2e | Llamadas |
+|---|---|---|---|---|---|---|---|---|
+| (1) Prompt directo (D1) | 8/15 | 9/15 | — | 3/12 | 5/12 | — | — | 1,0 |
+| (2) Pipeline (D2) | 11/15 | 12/15 | 11/15 | 8/12 | 10/12 | 10/12 | 7/12 | 2,1 |
+| (3) Agentes, modelo base (D3) | 11/15 | 12/15 | 12/15 | 8/12 | 11/12 | 11/12 | 9/12 | 3,5 |
+| **(4) Agentes + Planificador ajustado (D4)** | **14/15** | **14/15** | **14/15** | 10/12 | 10/12 | 10/12 | 9/12 | 3,2 |
+| Control: base + mismos datos en el prompt | 14/15 | 14/15 | 14/15 | 7/12 | 8/12 | 8/12 | 9/12 | 3,3 |
+
+| Devoluciones al Planificador | Recibidas | Repitió el mismo plan |
+|---|---|---|
+| (3) base | 9 | 4 (q04, q10, q12, q11-p) |
+| (4) ajustado | 1 | 1 (q10, que igual termina bien) |
+| Control | 4 | 0 |
+
+Detalle por pregunta (`e2e`; solo las que difieren entre configuraciones):
+
+| Pregunta | Tipo | D2 | (3) base | (4) ajustado | Control |
+|---|---|---|---|---|---|
+| q04 | puntual | ✓ | ✗ | ✓ | ✓ |
+| q09 | combinada | ✗ | ✓ | ✓ | ✓ |
+| q10 | combinada | ✗ | ✗ | ✓ | ✗ |
+| q11 | combinada | ✗ | ✓ | ✗ | ✓ |
+| q12 | combinada | ✓ | ✗ | ✓ | ✓ |
+| q13 | puntual | ✗ | ✓ | ✓ | ✓ |
+| q09-p | combinada | ✗ | ✓ | ✗ | ✗ |
+| q10-p | combinada | ✓ | ✓ | ✓ | ✗ |
+| q11-p | combinada | ✓ | ✗ | ✗ | ✓ |
+| q14-p | combinada | ✗ | ✓ | ✓ | ✓ |
+| q07-p | puntual | ✓ | ✓ | ✓ | ✗ |
+| q08-p | puntual | ✓ | ✓ | ✓ | ✗ |
+
+Lectura:
+
+- **Continuidad:** (3) en el H100 reproduce el D3 v2 medido en el T4 (12/15 y 11/12, con las mismas
+  cuatro fallas: q04, q10, q12 y q11-p).
+- **Qué logran los pesos nuevos:**
+  - El Planificador ajustado resuelve q04, q10 y q12, justo los casos en que el base recibía la
+    retroalimentación correcta y repetía su plan.
+  - Casi siempre acierta al primer intento: 1 devolución contra 9.
+  - En total sube de 23/27 a 24/27 en `e2e` y usa menos llamadas.
+- **Lo que no mejora:** en paráfrasis baja de 11/12 a 10/12. Pierde q11 y q09-p (ver el caso de falla)
+  y q11-p sigue fallando, ahora por otra razón.
+- **Control:** los mismos datos dados como ejemplos en el prompt igualan al ajuste en el set oficial
+  (14/15, preguntas parecidas a las plantillas), pero caen a 8/12 en paráfrasis. En las preguntas
+  nuevas, los pesos generalizan mejor que el prompting con los mismos datos.
+- **Tamaño:** con 27 preguntas, 1 o 2 de diferencia es una tendencia, no una diferencia significativa.
 
 ### Caso de falla
 
-**PENDIENTE**: una entrada donde el sistema con el Planificador ajustado aún falla o empeora, por qué, y
-su traza en `results/deliverable4/trazas_agentes_ft/`.
+**q09-p** (paráfrasis externa; el sistema base la resolvía):
+
+> ¿Cuánto crecieron, en porcentaje, las ventas de junio a agosto respecto de marzo a mayo?
+
+- **Qué hace el sistema ajustado:** el Planificador pone bien el período anterior primero, que es lo
+  que se entrenó. Pero mide *el número de transacciones* (`COUNT(*)`, 220 → 329, +49,5 %) en vez del
+  *monto vendido* (48.748.530 → 78.058.920, +60,1 %).
+- **Por qué:** en los datos de entrenamiento, las 222 preguntas que dicen "ventas" se etiquetaron como
+  conteo de transacciones ("número de ventas", "producto con más ventas") y ninguna como monto. El
+  ajuste aprendió esa convención de las plantillas. El modelo base, sin ese sesgo, leía "ventas" como
+  monto en esta pregunta.
+- **Por qué no lo detecta el Verificador:** la forma del resultado (un cambio porcentual) y los
+  períodos calzan con la pregunta; ningún control revisa qué métrica se usó.
+- **Traza:** [`results/deliverable4/trazas_agentes_ft/heldout_q09-p.json`](results/deliverable4/trazas_agentes_ft/heldout_q09-p.json).
+
+**Mismo patrón en q11 y q11-p ("semestre").** El Planificador ajustado ya pone el total primero y la
+parte después (la falla de q11-p en el D3). Sin embargo, traduce "el semestre" a julio–diciembre (q11)
+o a enero–junio (q11-p), en vez de usar todo el período con datos (marzo–agosto). En los 35 ejemplos de
+entrenamiento con "semestre", el plan correcto no filtra fechas, pero los 35 dicen "todo el semestre";
+la forma "en el semestre" de estas preguntas no aparece. `revisar_periodos` no lo marca porque la
+lista de chequeo del Verificador no fija fechas para "semestre". Trazas: `trazas_agentes_ft/official_q11.json`
+y `trazas_agentes_ft/heldout_q11-p.json`.
+
+Conclusión: el ajuste corrige el problema que se diagnosticó (repetir un plan devuelto, el orden de los
+períodos), pero también copia las convenciones de las plantillas. Un siguiente paso sería variar en los
+datos lo que significa "ventas" y los nombres de período.
 
 ### Cómo reproducir el Deliverable 4
+
+**Ruta medida: Modal (H100).** Requiere `pip install modal`, `modal setup` y, solo para publicar, un
+secreto `huggingface` con un token de escritura (`modal secret create huggingface HF_TOKEN=...`). Cada
+comando clona el repositorio en un ref empujado (`--ref`, por defecto `deliverable4`) y deja los
+resultados en las mismas rutas de este repositorio:
+
+```
+modal run scripts/modal_d4.py::train                 # QLoRA en H100 (~17 min) y publicación en Hugging Face
+modal run scripts/modal_d4.py::evaluate              # cinco sistemas, 27 preguntas
+modal run scripts/modal_d4.py::demo --ids q12,q11-p  # lo que muestra el video
+```
+
+Para solo reproducir los resultados no hace falta entrenar: `evaluate` descarga el adaptador publicado.
+
+**Ruta alternativa: Colab.**
 
 1. Abrir [`notebooks/deliverable4_finetune.ipynb`](https://colab.research.google.com/github/aredhel-jmze/Asistente-SQL-4-Business/blob/deliverable4/notebooks/deliverable4_finetune.ipynb) en Colab con GPU T4
    (mientras el D4 esté en la rama `deliverable4`; el notebook usa `REF = "deliverable4"`, cambiarlo a `main` tras el merge).
@@ -132,7 +235,33 @@ su traza en `results/deliverable4/trazas_agentes_ft/`.
 
 ### Cambios en el código del D3
 
-Solo dos, sin cambiar ninguna decisión (los tests que reproducen las 27 trazas de v2 siguen pasando):
+**Orden del Verificador (comentario del profesor al D3).** En el D3 el Analista entregaba un "resultado
+verificado" directo al Reportero, y el Verificador revisaba todo al final, aunque sus controles del plan
+(forma, períodos, filtros) no leen el reporte. Ahora el orden es Analista → Verificador (¿el resultado
+responde la pregunta? si no, replanificar) → Reportero → Verificador (¿el reporte es fiel? si no,
+reescribir) → usuario:
+
+```mermaid
+flowchart LR
+    U([Usuario]) -->|"pregunta"| P[Planificador · LoRA D4]
+    P -->|"plan JSON"| A[Analista SQL]
+    A -->|"resultado ejecutado"| V1[Verificador: resultado]
+    V1 -->|"resultado verificado"| R[Reportero]
+    R -->|"reporte"| V2[Verificador: fidelidad]
+    V2 -->|"acepta"| F([Respuesta final])
+    V1 -.->|"no responde la pregunta: replanificar ≤ 1"| P
+    V2 -.->|"cifras no fieles: reescribir ≤ 2"| R
+    A -.->|"error: replanificar ≤ 2"| P
+```
+
+Las decisiones y la retroalimentación son las mismas: `tests/test_agents.py` reproduce sin GPU las 27
+trazas de la corrida v2 del D3 con el nuevo orden y obtiene los mismos planes, la misma retroalimentación
+al Planificador, el mismo resultado y el mismo estado. Cambian dos cosas: el Reportero ya no redacta un
+resultado que vuelve al Planificador (menos llamadas), y el reporte de respaldo (cuando el plan nuevo
+falla) ahora también pasa por el chequeo de fidelidad; en el D3 quedaba sin verificar. Los sistemas (3),
+(4) y el control del D4 se evalúan con este orden.
+
+Además, dos cambios sin efecto en las decisiones:
 los controles del Verificador se extrajeron a `critic_problems` (para que los datos usen su mismo texto),
 y `AgentSystem` acepta un generador propio por agente (`agent_generators`). Además, el modelo base queda
 fijado en la revisión `488639f`, la evaluada desde el D2.
